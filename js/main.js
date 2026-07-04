@@ -202,7 +202,7 @@
 
       var subject = "New project enquiry from " + name;
       var mailto =
-        "mailto:hello@plutusandromedagroup.co.za" +
+        "mailto:info@plutusandromedagroup.co.za" +
         "?subject=" +
         encodeURIComponent(subject) +
         "&body=" +
