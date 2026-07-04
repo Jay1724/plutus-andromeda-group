@@ -49,10 +49,10 @@
       });
     });
 
-    var path = window.location.pathname.replace(/index\.html$/, "");
+    var currentPath = window.location.pathname.replace(/\/index\.html$/, "/");
     nav.querySelectorAll("[data-nav-link]").forEach(function (link) {
-      var href = link.getAttribute("href").replace(/index\.html$/, "");
-      if (href === path || (href === "/" && path === "")) {
+      var linkPath = link.pathname.replace(/\/index\.html$/, "/");
+      if (linkPath === currentPath) {
         link.classList.add("is-active");
       }
     });
