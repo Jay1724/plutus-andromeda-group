@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<script>
+(function(){try{var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>What WCAG AA actually requires from a government platform — Plutus Andromeda Group</title>
+<meta name="description" content="A practical breakdown of what accessibility conformance means beyond the checklist, drawn from delivering public-sector platforms at scale." />
+<link rel="canonical" href="https://www.plutusandromeda.com/insights/accessibility-public-sector.html" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.plutusandromeda.com/insights/accessibility-public-sector.html" />
+<meta property="og:title" content="What WCAG AA actually requires from a government platform" />
+<meta property="og:description" content="A practical breakdown of what accessibility conformance means beyond the checklist, drawn from delivering public-sector platforms at scale." />
+<meta property="og:image" content="/assets/img/og-image.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg" />
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<header class="nav" data-nav>
+  <div class="container nav__inner">
+    <a href="/" class="logo" aria-label="Plutus Andromeda Group, home">
+      <svg class="logo__mark" width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+        <circle cx="13" cy="13" r="12" stroke="currentColor" stroke-opacity="0.25"/>
+        <ellipse cx="13" cy="13" rx="12" ry="4.5" stroke="currentColor" stroke-opacity="0.4" transform="rotate(-28 13 13)"/>
+        <circle cx="13" cy="13" r="3.2" fill="currentColor"/>
+      </svg>
+      <span class="logo__text">Plutus <span class="logo__accent">Andromeda</span></span>
+    </a>
+
+    <nav class="nav__links" aria-label="Primary">
+      <a class="nav__link" data-nav-link href="/">Home</a>
+      <a class="nav__link" data-nav-link href="/services.html">Services</a>
+      <a class="nav__link" data-nav-link href="/work.html">Work</a>
+      <a class="nav__link" data-nav-link href="/industries.html">Industries</a>
+      <a class="nav__link" data-nav-link href="/insights.html">Insights</a>
+      <a class="nav__link" data-nav-link href="/about.html">About</a>
+    </nav>
+
+    <div class="nav__actions">
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle color theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>
+      </button>
+      <a class="btn btn--primary btn--sm" href="/contact.html">
+        Start a Project
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+      </a>
+    </div>
+
+    <button class="nav__toggle" type="button" data-nav-toggle aria-label="Open menu" aria-expanded="false">
+      <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+      <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="nav__mobile">
+    <div class="container nav__mobile-inner">
+      <a class="nav__mobile-link" data-nav-mobile-link href="/">Home</a>
+      <a class="nav__mobile-link" data-nav-mobile-link href="/services.html">Services</a>
+      <a class="nav__mobile-link" data-nav-mobile-link href="/work.html">Work</a>
+      <a class="nav__mobile-link" data-nav-mobile-link href="/industries.html">Industries</a>
+      <a class="nav__mobile-link" data-nav-mobile-link href="/insights.html">Insights</a>
+      <a class="nav__mobile-link" data-nav-mobile-link href="/about.html">About</a>
+      <a class="nav__mobile-link" data-nav-mobile-link href="/contact.html">Contact</a>
+      <div class="nav__mobile-actions">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle color theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>
+        </button>
+        <a class="btn btn--primary btn--sm" href="/contact.html">Start a Project</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <article class="section">
+    <div class="container article">
+      <div class="reveal">
+        <a class="article__back" href="/insights.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          All insights
+        </a>
+
+        <div class="article__meta">
+          <span class="badge">Accessibility</span>
+          <span>8 min read</span>
+          <span>19 February 2026</span>
+        </div>
+
+        <h1 class="article__title text-balance">What WCAG AA actually requires from a government platform</h1>
+        <p class="article__excerpt text-balance">A practical breakdown of what accessibility conformance means beyond the checklist, drawn from delivering public-sector platforms at scale.</p>
+      </div>
+
+      <div class="article__body reveal reveal--delay-1">
+        <p>WCAG AA conformance is frequently treated as a documentation exercise — an audit performed after launch to produce a compliance statement. Retrofitted accessibility is always more expensive and less effective than designed-in accessibility.</p>
+        <p>On public-sector platforms, the stakes are higher: these are often services citizens are required to use, with no reasonable alternative. That changes the design brief from 'accessible where practical' to 'accessible by default.'</p>
+        <p>In practice, that means testing with actual assistive technology throughout the design phase, not just at QA; writing content at a reading level appropriate for the population it serves; and designing for low-bandwidth, older-device contexts as a primary use case, not an edge case.</p>
+        <p>Conformance follows naturally when accessibility is a design constraint from day one rather than a remediation task at the end.</p>
+      </div>
+    </div>
+  </article>
+
+  <section class="section">
+    <div class="container">
+      <div class="cta-banner reveal">
+        <div>
+          <h2 class="cta-banner__title text-balance">Let's build something remarkable.</h2>
+          <p class="cta-banner__desc">Tell us about your business and what you're trying to achieve — we'll respond within one business day.</p>
+        </div>
+        <a class="btn btn--accent btn--lg" href="/contact.html">
+          Start a Project
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a href="/" class="logo">
+          <svg class="logo__mark" width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+            <circle cx="13" cy="13" r="12" stroke="currentColor" stroke-opacity="0.25"/>
+            <ellipse cx="13" cy="13" rx="12" ry="4.5" stroke="currentColor" stroke-opacity="0.4" transform="rotate(-28 13 13)"/>
+            <circle cx="13" cy="13" r="3.2" fill="currentColor"/>
+          </svg>
+          <span class="logo__text">Plutus <span class="logo__accent">Andromeda</span></span>
+        </a>
+        <p class="footer__tagline">We design digital experiences that businesses grow on.</p>
+        <div class="footer__social">
+          <a href="https://www.linkedin.com/company/plutus-andromeda-group" target="_blank" rel="noreferrer noopener" aria-label="Plutus Andromeda Group on LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.45-2.14 2.94v5.66H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
+          </a>
+          <a href="mailto:hello@plutusandromeda.com" aria-label="Email Plutus Andromeda Group">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <div class="footer__heading">Explore</div>
+        <div class="footer__links">
+          <a href="/">Home</a>
+          <a href="/services.html">Services</a>
+          <a href="/work.html">Work</a>
+          <a href="/industries.html">Industries</a>
+          <a href="/insights.html">Insights</a>
+          <a href="/about.html">About</a>
+          <a href="/contact.html">Contact</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="footer__heading">Services</div>
+        <div class="footer__links">
+          <a href="/services.html#digital-design">Digital Design</a>
+          <a href="/services.html#product-design">Product Design</a>
+          <a href="/services.html#web-experiences">Web Experiences</a>
+          <a href="/services.html#commerce">Commerce</a>
+          <a href="/services.html#enterprise-platforms">Enterprise Platforms</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="footer__heading">Contact</div>
+        <div class="footer__contact">
+          <a href="mailto:hello@plutusandromeda.com">hello@plutusandromeda.com</a>
+          <a href="tel:+27110224841">+27 11 022 4841</a>
+          <span style="color:var(--muted);">Sandton, Johannesburg, South Africa</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <span>© 2026 Plutus Andromeda Group. All rights reserved.</span>
+      <span>Designed &amp; built in Johannesburg, South Africa.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/main.js"></script>
+</body>
+</html>
