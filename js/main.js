@@ -7,10 +7,7 @@
     if (!toggle) return;
 
     toggle.addEventListener("click", function () {
-      var current = document.documentElement.getAttribute("data-theme");
-      var isDark = current
-        ? current === "dark"
-        : window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var isDark = document.documentElement.getAttribute("data-theme") === "dark";
       var next = isDark ? "light" : "dark";
       document.documentElement.setAttribute("data-theme", next);
       try {
