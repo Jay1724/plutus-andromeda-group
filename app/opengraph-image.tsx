@@ -15,8 +15,8 @@ export default async function Image() {
           flexDirection: "column",
           justifyContent: "center",
           padding: "80px",
-          background: "linear-gradient(155deg, #08080a 0%, #17131f 55%, #241a10 100%)",
-          color: "#f4f2ec",
+          background: "linear-gradient(155deg, #000000 0%, #0a1a33 55%, #0a84ff 130%)",
+          color: "#f5f5f7",
           fontFamily: "sans-serif",
         }}
       >
@@ -27,7 +27,7 @@ export default async function Image() {
             gap: 14,
             fontSize: 28,
             letterSpacing: 1,
-            color: "#d4af6a",
+            color: "#0a84ff",
           }}
         >
           <div
@@ -35,7 +35,7 @@ export default async function Image() {
               width: 18,
               height: 18,
               borderRadius: 999,
-              background: "#d4af6a",
+              background: "#0a84ff",
               display: "flex",
             }}
           />
@@ -58,7 +58,7 @@ export default async function Image() {
             display: "flex",
             marginTop: 36,
             fontSize: 26,
-            color: "#9a988f",
+            color: "#86868b",
           }}
         >
           Digital Design &amp; Engineering — South Africa

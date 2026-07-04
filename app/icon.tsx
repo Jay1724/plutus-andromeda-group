@@ -13,22 +13,22 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#08080a",
+          background: "#000000",
           borderRadius: 8,
         }}
       >
         <svg width="22" height="22" viewBox="0 0 26 26" fill="none">
-          <circle cx="13" cy="13" r="12" stroke="#d4af6a" strokeOpacity="0.5" />
+          <circle cx="13" cy="13" r="12" stroke="#0a84ff" strokeOpacity="0.5" />
           <ellipse
             cx="13"
             cy="13"
             rx="12"
             ry="4.5"
-            stroke="#d4af6a"
+            stroke="#0a84ff"
             strokeOpacity="0.7"
             transform="rotate(-28 13 13)"
           />
-          <circle cx="13" cy="13" r="3.4" fill="#d4af6a" />
+          <circle cx="13" cy="13" r="3.4" fill="#0a84ff" />
         </svg>
       </div>
     ),

@@ -11,7 +11,7 @@ const buttonVariants = cva(
         primary:
           "bg-foreground text-background hover:opacity-90 active:opacity-80",
         accent:
-          "bg-accent text-accent-foreground hover:brightness-110 active:brightness-95",
+          "bg-accent-solid text-accent-foreground hover:brightness-110 active:brightness-95",
         outline:
           "border border-border-strong text-foreground hover:border-foreground/40 hover:bg-foreground/[0.03]",
         ghost: "text-foreground hover:bg-foreground/[0.05]",

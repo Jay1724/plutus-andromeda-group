@@ -19,7 +19,7 @@ export function FinalCta() {
                 </span>
                 <h2 className="text-balance font-display text-4xl font-medium leading-[1.08] tracking-tight md:text-5xl lg:text-6xl">
                   Let&apos;s build something{" "}
-                  <span className="font-serif-accent italic text-accent">
+                  <span className="font-semibold text-accent">
                     remarkable.
                   </span>
                 </h2>

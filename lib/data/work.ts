@@ -25,7 +25,7 @@ export const projects: Project[] = [
     outcome:
       "A unified platform that cut average task completion time and gave Argent a design system their internal teams still ship on today.",
     metric: { value: "42%", label: "faster task completion" },
-    palette: ["#12213b", "#3b5c9e"],
+    palette: ["#0a1a33", "#1f6fd6"],
   },
   {
     slug: "karoo-minerals",
@@ -40,7 +40,7 @@ export const projects: Project[] = [
     outcome:
       "Site incident reporting moved from days to minutes, giving safety officers a live view across every operation.",
     metric: { value: "9x", label: "faster incident reporting" },
-    palette: ["#2b1d10", "#8a5a2b"],
+    palette: ["#0d1b26", "#2b7a8c"],
   },
   {
     slug: "meridian-health",
@@ -55,7 +55,7 @@ export const projects: Project[] = [
     outcome:
       "A calmer, faster booking experience that patients and administrators both trust — and use.",
     metric: { value: "-58%", label: "booking drop-off" },
-    palette: ["#0f2a24", "#2f7a63"],
+    palette: ["#08202b", "#1f9bc9"],
   },
   {
     slug: "solari-telecom",
@@ -70,7 +70,7 @@ export const projects: Project[] = [
     outcome:
       "Zero downtime through a nationwide launch campaign, with page load times among the fastest in the sector.",
     metric: { value: "1.2s", label: "median load time" },
-    palette: ["#1a1025", "#6c4bd6"],
+    palette: ["#10163a", "#3654e6"],
   },
   {
     slug: "founders-exchange",
@@ -85,7 +85,7 @@ export const projects: Project[] = [
     outcome:
       "Founders Exchange scaled from 40 to over 600 advisory engagements a year on the platform we designed.",
     metric: { value: "15x", label: "engagement growth" },
-    palette: ["#241a10", "#c98f3f"],
+    palette: ["#0c1830", "#2f8fe0"],
   },
   {
     slug: "civica-gov",
@@ -100,6 +100,6 @@ export const projects: Project[] = [
     outcome:
       "A public platform that set a new accessibility benchmark internally, now used as the department's reference implementation.",
     metric: { value: "100%", label: "WCAG AA conformance" },
-    palette: ["#101820", "#2e5f6e"],
+    palette: ["#0a1620", "#1f6f85"],
   },
 ];
