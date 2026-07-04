@@ -17,8 +17,8 @@ export function FeaturedWork() {
           <Reveal>
             <SectionHeader
               eyebrow="Featured Work"
-              title="Platforms shipped. Outcomes measured."
-              description="A selection of the enterprise and mid-market platforms we've designed and built across South Africa's most regulated industries."
+              title="New, relevant sites we're proud to have shipped."
+              description="A look at the corporate and investor-facing websites we've designed and built for our clients."
             />
           </Reveal>
           <Reveal delay={0.1}>

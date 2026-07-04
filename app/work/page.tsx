@@ -9,7 +9,7 @@ import { projects } from "@/lib/data/work";
 export const metadata: Metadata = {
   title: "Work",
   description:
-    "Enterprise and mid-market platforms designed and built by Plutus Andromeda Group across banking, mining, healthcare, telecommunications and government.",
+    "Corporate and investor-facing websites designed and built by Plutus Andromeda Group, including Siyanda Resources and Siyanda Bakgatla Platinum Mine.",
 };
 
 export default function WorkPage() {
@@ -17,8 +17,8 @@ export default function WorkPage() {
     <>
       <PageHeader
         eyebrow="Work"
-        title="Platforms shipped across South Africa's most regulated industries."
-        description="A selection of engagements spanning banking, mining, healthcare, telecommunications, professional services and government."
+        title="New, relevant sites for South Africa's mining sector."
+        description="A selection of the corporate and investor-facing websites we've designed and built."
       />
 
       <section className="py-20 md:py-28">

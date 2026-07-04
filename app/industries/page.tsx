@@ -48,22 +48,18 @@ export default function IndustriesPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2 md:items-end md:text-right">
-                      <span className="text-xs uppercase tracking-wide text-muted">
-                        Related work
-                      </span>
-                      {relatedProjects.length ? (
-                        relatedProjects.map((p) => (
+                    {relatedProjects.length ? (
+                      <div className="flex flex-col gap-2 md:items-end md:text-right">
+                        <span className="text-xs uppercase tracking-wide text-muted">
+                          Related work
+                        </span>
+                        {relatedProjects.map((p) => (
                           <span key={p.slug} className="text-sm text-foreground/80">
                             {p.name}
                           </span>
-                        ))
-                      ) : (
-                        <span className="text-sm text-foreground/50">
-                          Engagements under NDA
-                        </span>
-                      )}
-                    </div>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
                 </Reveal>
               );

@@ -14,16 +14,32 @@ export function ProjectCard({ project }: { project: Project }) {
       className="group flex flex-col gap-6 rounded-3xl border border-border bg-surface p-4 transition-colors hover:border-border-strong md:p-5"
     >
       <div className="relative overflow-hidden rounded-2xl">
-        <motion.div
-          variants={{ rest: { scale: 1 }, hover: { scale: 1.04 } }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <ProjectCover project={project} />
-        </motion.div>
+        {project.url ? (
+          <a
+            href={project.url}
+            target="_blank"
+            rel="noreferrer noopener"
+            aria-label={`Visit the live ${project.name} website`}
+          >
+            <motion.div
+              variants={{ rest: { scale: 1 }, hover: { scale: 1.04 } }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <ProjectCover project={project} />
+            </motion.div>
+          </a>
+        ) : (
+          <motion.div
+            variants={{ rest: { scale: 1 }, hover: { scale: 1.04 } }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <ProjectCover project={project} />
+          </motion.div>
+        )}
         <motion.div
           variants={{ rest: { opacity: 0, y: 8 }, hover: { opacity: 1, y: 0 } }}
           transition={{ duration: 0.3 }}
-          className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-background/90 text-foreground backdrop-blur"
+          className="pointer-events-none absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-background/90 text-foreground backdrop-blur"
         >
           <ArrowUpRight className="h-4 w-4" />
         </motion.div>
@@ -34,7 +50,19 @@ export function ProjectCard({ project }: { project: Project }) {
           <h3 className="font-display text-2xl font-medium tracking-tight">
             {project.name}
           </h3>
-          <span className="text-sm text-muted">{project.year}</span>
+          {project.url ? (
+            <a
+              href={project.url}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="flex items-center gap-1 text-sm text-muted transition-colors hover:text-accent"
+            >
+              Visit site
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </a>
+          ) : project.year ? (
+            <span className="text-sm text-muted">{project.year}</span>
+          ) : null}
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -73,12 +101,14 @@ export function ProjectCard({ project }: { project: Project }) {
           </div>
         </dl>
 
-        <div className="flex items-baseline gap-2 border-t border-border pt-4">
-          <span className="font-display text-3xl font-medium text-accent">
-            {project.metric.value}
-          </span>
-          <span className="text-sm text-muted">{project.metric.label}</span>
-        </div>
+        {project.metric ? (
+          <div className="flex items-baseline gap-2 border-t border-border pt-4">
+            <span className="font-display text-3xl font-medium text-accent">
+              {project.metric.value}
+            </span>
+            <span className="text-sm text-muted">{project.metric.label}</span>
+          </div>
+        ) : null}
       </div>
     </motion.article>
   );
