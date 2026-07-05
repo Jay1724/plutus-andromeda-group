@@ -48,6 +48,34 @@
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: "Sora";
+  src: url("../assets/fonts/sora-latin-500-normal.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Sora";
+  src: url("../assets/fonts/sora-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Sora";
+  src: url("../assets/fonts/sora-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Sora";
+  src: url("../assets/fonts/sora-latin-800-normal.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* Design tokens */
 :root {
@@ -64,7 +92,7 @@
   --ring: #0066cc;
 
   --font-sans: "Geist Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Bricolage Grotesque", var(--font-sans);
+  --font-display: "Sora", var(--font-sans);
 
   --container-max: 96rem;
   --radius-sm: 0.75rem;
