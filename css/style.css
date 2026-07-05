@@ -1104,12 +1104,6 @@ ul {
   font-size: 0.875rem;
 }
 
-@media (min-width: 640px) {
-  .project-card__grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
 .project-card__grid dt {
   margin-bottom: 0.25rem;
   font-size: 0.75rem;
