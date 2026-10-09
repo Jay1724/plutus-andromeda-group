@@ -1,0 +1,50 @@
+/* Motion kit tokens (mapped to site tokens) */
+:root {
+  --m-bg: var(--background);
+  --m-surface: var(--surface);
+  --m-fg: var(--foreground);
+  --m-muted: var(--muted);
+  --m-accent: var(--accent);
+  --m-accent-2: var(--accent-solid);
+  --m-ok: #30a46c;
+  --m-font-display: var(--font-display);
+  --m-font-sans: var(--font-sans);
+  --m-font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+/* Hide until the effect has been created, so there is no flash of final state */
+[data-motion]:not(.m-on) {
+  visibility: hidden;
+}
+
+.m-split {
+  display: block;
+}
+
+.m-line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+
+.m-line {
+  display: block;
+  will-change: transform;
+}
+
+.m-word {
+  display: inline-block;
+}
+
+.m-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

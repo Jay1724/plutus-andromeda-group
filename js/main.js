@@ -225,5 +225,6 @@
     initHeroParallax();
     initProcessFill();
     initContactForm();
+    if (window.Motion) window.Motion.init();
   });
 })();

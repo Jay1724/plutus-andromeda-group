@@ -18,6 +18,8 @@
 <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
 <link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/motion.css" />
+<noscript><style>[data-motion]{visibility:visible !important}</style></noscript>
 </head>
 <body>
 
@@ -90,7 +92,7 @@
     </div>
 
     <div class="container hero__content" data-hero-content>
-      <h1 class="hero__title">
+      <h1 data-motion="line-reveal" data-m-trigger="load" class="hero__title">
         We design digital experiences businesses <span class="accent">grow on.</span>
       </h1>
 
@@ -763,6 +765,9 @@
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="js/motion-core.js"></script>
+<script src="js/motion-text.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

@@ -18,6 +18,8 @@
 <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg" />
 <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png" />
 <link rel="stylesheet" href="../css/style.css" />
+<link rel="stylesheet" href="../css/motion.css" />
+<noscript><style>[data-motion]{visibility:visible !important}</style></noscript>
 </head>
 <body>
 
@@ -93,7 +95,7 @@
           <span>11 September 2025</span>
         </div>
 
-        <h1 class="article__title text-balance">Why we say no to wireframes in the first meeting</h1>
+        <h1 data-motion="line-reveal" data-m-trigger="load" class="article__title text-balance">Why we say no to wireframes in the first meeting</h1>
         <p class="article__excerpt text-balance">The case for slowing down at the start of an engagement — and what happens to projects that skip straight to design.</p>
       </div>
 
@@ -187,6 +189,9 @@
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="../js/motion-core.js"></script>
+<script src="../js/motion-text.js"></script>
 <script src="../js/main.js"></script>
 </body>
 </html>
