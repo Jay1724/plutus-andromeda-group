@@ -8,3 +8,4 @@ This is a plain HTML/CSS/JS site. No framework, no bundler, no build step.
 - Every page is a standalone `.html` file with its own copy of the header/nav/footer markup — there is no templating layer, so shared markup must be edited consistently across files.
 - Fonts are self-hosted under `assets/fonts/` (Geist Sans, Bricolage Grotesque) via `@font-face` — no external font CDN.
 - The contact form submits via a `mailto:` link — there is no backend/API route.
+- `desk/index.html` is the internal studio desk (projects, SLA quota, invoices). It is self-contained, not linked from the site, `noindex`, and loads its data from Supabase behind an email sign-in allowlist. The Supabase publishable key in it is public by design; access is enforced by row-level security.

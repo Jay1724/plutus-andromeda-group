@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
+<title>PAG Studio Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Schibsted+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+/* VOICE: a calm studio operations desk — precise, quiet, quick to scan
+   IDEA: the agency traffic board: every deliverable is a ticket moving left to right
+   PICTURE: the live board itself, straight under the month figures
+   COLOUR and TYPE: paper white / night ink, one blue accent, deliverable types as small coloured tabs; Schibsted Grotesk + Instrument Sans
+   LAYOUT: bar with month switch, nav row, figures strip, view; board scrolls sideways on phones */
+:root{color-scheme:light dark;--bg:light-dark(#f7f6f3,#111214);--panel:light-dark(#ffffff,#1a1b1e);--col:light-dark(#eeece7,#17181b);--ink:light-dark(#141414,#ecebe8);--mute:light-dark(#69675f,#9b9a95);--line:light-dark(#e2e0da,#2b2c30);--acc:light-dark(#1a5cff,#6fa2ff);--accink:light-dark(#ffffff,#08152e);--warn:light-dark(#b93a0b,#fb8b4a);--ok:light-dark(#157a3c,#5ad98a);--soft:light-dark(#e7eeff,#13233f)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Instrument Sans",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3,h4{font-family:"Schibsted Grotesk",system-ui,sans-serif;margin:0;line-height:1.1;text-wrap:balance}
+h2{font-size:clamp(24px,3vw,32px)}h3{font-size:18px}
+a{color:var(--acc)}
+.band{padding:18px max(4vw,16px)}
+.wrap{max-width:1400px;margin:0 auto}
+header.bar{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;padding:16px max(4vw,16px) 8px}
+.brand{display:flex;align-items:center;gap:10px;font:600 17px "Schibsted Grotesk",sans-serif}
+.brand small{display:block;font:500 13px "Instrument Sans",sans-serif;color:var(--mute)}
+.mon{display:flex;align-items:center;gap:6px}
+.mon b{font:600 20px "Schibsted Grotesk",sans-serif;min-width:150px;text-align:center;white-space:nowrap}
+nav.scroll{display:flex;gap:4px;padding:0 max(4vw,16px);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+nav a{flex:none;padding:12px 14px;color:var(--mute);text-decoration:none;font-weight:600;font-size:15px;border-bottom:2px solid transparent}
+nav a[aria-current]{color:var(--ink);border-color:var(--acc)}
+button,.btn{font:600 15px "Instrument Sans",sans-serif;min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;white-space:nowrap}
+button.pri,.btn.pri{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+button.ghost{background:none;border-color:transparent}
+button.icon{width:44px;padding:0}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.card:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+input,select,textarea{font:16px "Instrument Sans",sans-serif;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;min-height:44px;padding:8px 12px;width:100%}
+textarea{min-height:120px;resize:vertical;line-height:1.5}
+input[type=checkbox]{width:20px;min-height:20px;height:20px;accent-color:var(--acc)}
+label.f{display:grid;gap:4px;font-size:14px;color:var(--mute);font-weight:500}
+.figs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:16px 0}
+.figs div{background:var(--panel);padding:14px 16px}
+.figs span{display:block;color:var(--mute);font-size:13px}
+.figs b{display:block;font:600 clamp(22px,2.4vw,30px) "Schibsted Grotesk",sans-serif;white-space:nowrap;margin:2px 0}
+.figs i{font-style:normal;font-size:13px;color:var(--mute)}
+.figs .late b{color:var(--warn)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.tools select,.tools input{width:auto;flex:1 1 150px;max-width:220px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;border-radius:0}.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.board{display:grid;grid-template-columns:repeat(6,minmax(230px,1fr));gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:10px}
+.colm{background:var(--col);border-radius:14px;padding:10px;min-height:320px;scroll-snap-align:start;display:flex;flex-direction:column;gap:8px}
+.colm.over{outline:2px dashed var(--acc)}
+.colh{display:flex;justify-content:space-between;align-items:baseline;padding:4px 4px 6px;font-weight:600}
+.colh small{color:var(--mute);font-weight:500;white-space:nowrap}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px 12px;cursor:pointer;display:grid;gap:6px;box-shadow:0 1px 0 var(--line)}
+.card:hover{border-color:var(--mute)}
+.card h4{font:600 15px/1.3 "Instrument Sans",sans-serif}
+.row{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:13px;color:var(--mute)}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap}
+.tag::before{content:"";width:9px;height:9px;border-radius:3px;background:var(--t,#888)}
+.due{white-space:nowrap}.due.late{color:var(--warn);font-weight:600}
+.who{width:24px;height:24px;border-radius:50%;background:var(--soft);color:var(--acc);display:inline-grid;place-items:center;font-size:11px;font-weight:700}
+.pill{display:inline-block;font-size:12.5px;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--col);white-space:nowrap}
+.pill.ok{color:var(--ok)}.pill.warn{color:var(--warn)}.pill.acc{color:var(--acc);background:var(--soft)}
+.empty{color:var(--mute);font-size:14px;padding:8px 4px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+.grid2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
+.stackc{display:grid;gap:12px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{text-align:left;font-size:13px;color:var(--mute);font-weight:600;padding:8px;border-bottom:1px solid var(--line)}
+td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.n,th.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.bars{display:grid;gap:8px}
+.bar{display:grid;grid-template-columns:130px minmax(0,1fr) 90px;gap:10px;align-items:center;font-size:14px}
+.bar .tr{height:14px;background:var(--col);border-radius:4px;overflow:hidden}.bar .tr i{display:block;height:100%;background:var(--t)}
+.bar b{text-align:right;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.sched{display:grid;gap:2px}
+.srow{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:12px;padding:10px 4px;border-bottom:1px solid var(--line);align-items:center;cursor:pointer}
+.srow .d{font:600 18px "Schibsted Grotesk",sans-serif;white-space:nowrap}
+.srow small{color:var(--mute);display:block;font-size:13px}
+.wk{margin:18px 0 4px;font-size:13px;color:var(--mute);font-weight:600}
+.revs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.rev{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:grid}
+.prev{aspect-ratio:16/10;background:var(--col);display:grid;place-items:center;overflow:hidden;position:relative}
+.prev img{width:100%;height:100%;object-fit:cover}
+.prev svg{width:70%;height:70%}
+.rev .bd{padding:14px;display:grid;gap:10px}
+.log{font-size:14px;display:grid;gap:6px;max-height:150px;overflow:auto}
+.log p{margin:0;padding:6px 10px;background:var(--col);border-radius:8px}.log b{font-weight:600}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.fl{display:flex;gap:8px;flex-wrap:wrap}
+.note{background:var(--soft);color:var(--ink);padding:10px max(4vw,16px);font-size:14px}
+.note:empty{display:none}
+.ov{position:fixed;inset:0;background:rgb(0 0 0/.45);display:none;align-items:flex-start;justify-content:center;padding:4vh 12px;z-index:20;overflow:auto}
+.ov.on{display:flex}
+.sheet{background:var(--panel);border-radius:16px;width:min(620px,100%);padding:20px;display:grid;gap:12px;box-shadow:0 20px 60px rgb(0 0 0/.3)}
+.f2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{min-height:36px;padding:0 12px;font-size:14px;border-radius:99px}
+.chips button[aria-pressed=true]{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+.tot{display:grid;grid-template-columns:1fr auto;gap:4px 16px;justify-items:end;font-variant-numeric:tabular-nums;margin-top:10px}
+.tot span{color:var(--mute)}.tot .big{font:600 22px "Schibsted Grotesk",sans-serif;color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:10px;font-size:15px;z-index:30;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw}
+.toast.on{opacity:1}
+.hint{font-size:13px;color:var(--mute);margin:4px 0 0}
+.cl{display:flex;align-items:center;gap:10px}
+body.locked header .mon,body.locked nav,body.locked main,body.locked #note{display:none}
+#gate{min-height:70vh;display:grid;place-items:center;padding:24px 16px}#gate[hidden]{display:none}
+#gate form{width:min(420px,100%);display:grid;gap:14px}#gate h1{font-size:clamp(32px,5vw,44px)}#gate p{margin:0;color:var(--mute)}
+#gmsg{min-height:1.5em;font-size:15px}#gmsg.err{color:var(--warn)}
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+@media(max-width:900px){.figs{grid-template-columns:repeat(3,minmax(0,1fr))}.grid2{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.figs{grid-template-columns:repeat(2,minmax(0,1fr))}.board{grid-template-columns:repeat(6,82vw)}.f2{grid-template-columns:minmax(0,1fr)}.bar{grid-template-columns:96px minmax(0,1fr) 70px}.mon b{min-width:120px;font-size:17px}.tools select,.tools input{max-width:none}}
+pre,.scroll{overflow-x:auto}.scroll a{flex:none}code{overflow-wrap:anywhere}html{scroll-padding-top:72px}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mute)}.stack td:empty{display:none}}
+</style><script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script></head><body class="locked">
+<header class="bar">
+  <div class="brand"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="var(--acc)"/><ellipse cx="17" cy="17" rx="13" ry="4.5" fill="none" stroke="var(--accink)" stroke-width="1.6" transform="rotate(-28 17 17)"/><circle cx="17" cy="17" r="3.2" fill="var(--accink)"/></svg><div>Studio desk<small>Plutus Andromeda Group</small></div></div>
+  <div class="mon"><button class="icon" data-act="mprev" aria-label="Previous month">‹</button><b id="mlabel"></b><button class="icon" data-act="mnext" aria-label="Next month">›</button><button class="ghost" data-act="mnow">Today</button><button class="ghost" data-act="signout" id="who" hidden title="Sign out">Sign out</button></div>
+</header>
+<nav class="scroll" id="nav"></nav>
+<section id="gate"><form id="gform" novalidate><h1>Studio desk</h1><p>Sign in with your approved email. We’ll send you a one-time link.</p><label class="f">Email<input id="gemail" type="email" autocomplete="email" required></label><button class="pri" type="submit" id="gbtn">Email me a sign-in link</button><div id="gmsg" role="status"></div></form></section>
+<div class="note" id="note"></div>
+<main class="band"><div class="wrap"><section class="figs" id="figs" aria-label="Month figures"></section><div id="view"></div></div></main>
+<div class="ov" id="ov"><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+{
+const TYPES=[{k:'brand',n:'Brand identity',c:'#e4572e'},{k:'uiux',n:'UI/UX design',c:'#5b4bff'},{k:'web',n:'Website',c:'#13a48f'},{k:'deck',n:'Report & deck',c:'#d49a00'},{k:'social',n:'Social content',c:'#d43fb4'},{k:'dev',n:'Development',c:'#5a6b80'},{k:'research',n:'Research',c:'#7c9a2d'},{k:'video',n:'Video',c:'#e07a1f'},{k:'other',n:'Other',c:'#8a8a8a'}];
+const TY=Object.fromEntries(TYPES.map(t=>[t.k,t]));
+const STAGES=[['upcoming','Upcoming'],['todo','To do'],['doing','In progress'],['review','Client review'],['approved','Approved'],['done','Done']];
+const SN=Object.fromEntries(STAGES);
+const VIEWS=[['board','Board'],['plan','Month plan'],['invoices','Invoices'],['reviews','Design reviews'],['updates','Client updates'],['clients','Clients & import'],['studio','Studio details']];
+const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const $=s=>document.querySelector(s);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const TODAY=iso(new Date());
+const ymOf=s=>(s||'').slice(0,7);
+const addM=(ym,n)=>{let[y,m]=ym.split('-').map(Number);m+=n;while(m>12){m-=12;y++}while(m<1){m+=12;y--}return y+'-'+pad(m)};
+const addD=(s,n)=>{const d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return iso(d)};
+const mLabel=ym=>MN[+ym.slice(5)-1]+' '+ym.slice(0,4);
+const dShort=s=>s?(+s.slice(8))+' '+MN[+s.slice(5,7)-1].slice(0,3):'';
+const R=n=>{n=Math.round((+n||0)*100)/100;const[a,b]=Math.abs(n).toFixed(2).split('.');return(n<0?'-':'')+'R '+a.replace(/\B(?=(\d{3})+(?!\d))/g,' ')+'.'+b};
+const Rk=n=>{n=+n||0;return n>=1000?'R '+(n/1000).toFixed(n>=100000?0:1).replace(/\.0$/,'')+'k':'R '+Math.round(n)};
+const uid=p=>p+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const safeUrl=u=>/^https:\/\//i.test(u||'')?u:'';
+const initials=s=>(s||'').split(/\s+/).filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const DEF={name:'Plutus Andromeda (Pty) Ltd',reg:'2021/488914/07',vat:'4960319970',address:'5 Maldon Road, Westdene, Melville\nJohannesburg, 2092, Gauteng',email:'info@plutusandromedagroup.co.za',phone:'',bank:'',terms:14,prefix:'PAG',vatRate:15,team:'Junior',sender:'Junior'};
+const S={tasks:[],clients:[],invoices:[],updates:[],set:{},month:ymOf(TODAY),scope:'month',f:{client:'',type:'',who:'',q:''},draft:{clientId:'',off:{},ret:true,extra:[]},imp:[],impClient:'',up:{clientId:'',text:''},pending:false};
+let db=null,assets=null,downloads=null,sample=null,sb=null,session=null;
+const SB_URL='https://ptnqjkcerkmghhvmlvvr.supabase.co',SB_KEY='sb_publishable_FRNMKoNOx34GUex9uB-_uA_f9n8iFia';
+const dbx={save:async(col,id,data)=>{const{error}=await sb.from('docs').upsert({col,id,data});if(error)throw error},remove:async(col,id)=>{const{error}=await sb.from('docs').delete().eq('col',col).eq('id',id);if(error)throw error}};
+const URLS={},PEND={};
+function prevUrl(p){if(URLS[p])return URLS[p];if(sb&&!PEND[p]){PEND[p]=1;sb.storage.from('previews').createSignedUrl(p,3600).then(({data})=>{if(data&&data.signedUrl){URLS[p]=data.signedUrl;render()}})}return''}
+function saveFile(name,blob){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000)}
+const st=()=>({...DEF,...S.set});
+const client=id=>S.clients.find(c=>c.id===id);
+const cname=id=>client(id)?.name||'No client';
+const team=()=>st().team.split(',').map(s=>s.trim()).filter(Boolean);
+const view=()=>{const h=location.hash.slice(1);return VIEWS.some(v=>v[0]===h)?h:'board'};
+const isDone=t=>t.status==='done'||t.status==='approved';
+const late=t=>!isDone(t)&&t.due&&t.due<TODAY;
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),2600)};
+const errMsg=e=>'Couldn’t save'+(e&&e.message?': '+e.message:'.');
+const clean=o=>JSON.parse(JSON.stringify(o));
+
+async function put(col,obj){const i=S[col].findIndex(x=>x.id===obj.id);if(i<0)S[col].push(obj);else S[col][i]=obj;render(true);if(!db)return;const{id,...rest}=obj;try{await db.save(col,id,clean(rest))}catch(e){toast(errMsg(e))}}
+async function del(col,id){S[col]=S[col].filter(x=>x.id!==id);render(true);if(db)try{await db.remove(col,id)}catch(e){toast(errMsg(e))}}
+
+/* ---------- shell ---------- */
+function render(force){
+  const a=document.activeElement;
+  if(!force&&a&&$('#view').contains(a)&&a.matches('input:not([type=checkbox]),textarea,select')){S.pending=true;return}
+  S.pending=false;
+  const fid=a&&a.id,sel=a&&a.selectionStart;
+  $('#mlabel').textContent=mLabel(S.month);
+  const v=view();
+  $('#nav').innerHTML=VIEWS.map(([k,n])=>`<a href="#${k}"${k===v?' aria-current="page"':''}>${n}</a>`).join('');
+  figs();
+  $('#view').innerHTML=({board,plan,invoices,reviews,updates,clients,studio})[v]();
+  if(fid){const el=document.getElementById(fid);if(el&&el!==document.activeElement){el.focus();try{if(sel!=null)el.setSelectionRange(sel,sel)}catch(e){}}}
+}
+document.addEventListener('focusout',()=>setTimeout(()=>{if(S.pending)render()},0));
+function figs(){
+  const m=S.tasks.filter(t=>ymOf(t.due)===S.month),nx=S.tasks.filter(t=>ymOf(t.due)===addM(S.month,1));
+  const done=m.filter(isDone).length,rev=S.tasks.filter(t=>t.status==='review').length,lt=S.tasks.filter(late).length;
+  let bill=m.filter(t=>t.billable!==false).reduce((s,t)=>s+(+t.amount||0),0);
+  for(const c of S.clients){const q=quota(c,S.month);if(q&&q.active)bill+=(+c.sla.fee)+q.overAmt}
+  const inv=S.invoices.filter(i=>i.month===S.month).reduce((s,i)=>s+(+i.total||0),0);
+  $('#figs').innerHTML=[
+    ['Deliverables due',m.length,`${done} complete`],
+    ['In client review',rev,rev?'waiting on feedback':'nothing waiting'],
+    ['Overdue',lt,lt?'needs attention':'all on time',lt?'late':''],
+    ['Billable this month',Rk(bill),inv?`${Rk(inv)} invoiced incl. VAT`:'not invoiced yet'],
+    [mLabel(addM(S.month,1)).split(' ')[0]+' pipeline',nx.length,Rk(nx.reduce((s,t)=>s+(+t.amount||0),0))+' scheduled']
+  ].map(([l,v,s,c])=>`<div class="${c||''}"><span>${l}</span><b>${esc(v)}</b><i>${esc(s)}</i></div>`).join('');
+}
+const opts=(list,cur,empty)=>(empty?`<option value="">${empty}</option>`:'')+list.map(([v,n])=>`<option value="${esc(v)}"${v===cur?' selected':''}>${esc(n)}</option>`).join('');
+const clientOpts=(cur,empty)=>opts(S.clients.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(c=>[c.id,c.name]),cur,empty);
+const tag=k=>`<span class="tag" style="--t:${(TY[k]||TY.other).c}">${esc((TY[k]||TY.other).n)}</span>`;
+
+/* ---------- SLA quota ---------- */
+const unitsOf=t=>t.units!=null&&t.units!==''?(+t.units||0):(['video','web','dev'].includes(t.type)?0:1);
+const vidsOf=t=>t.type==='video'?1:0;
+const hrsOf=t=>(t.type==='web'||t.type==='dev')?(+t.hours||0):0;
+const qMonth=t=>ymOf(t.completedAt||t.due);
+const slaOf=c=>c&&c.sla&&+c.sla.fee>0?c.sla:null;
+const mBetween=(a,b)=>(+b.slice(0,4)-+a.slice(0,4))*12+(+b.slice(5)-+a.slice(5));
+const slaActive=(s,ym)=>!!(s&&s.start&&ym>=s.start&&mBetween(s.start,ym)<(+s.term||12));
+function quota(c,ym){const s=slaOf(c);if(!s)return null;const Q=+s.units||0,V=+s.videos||0,H=+s.hours||0,active=slaActive(s,ym);let cu=0,cv=0,r=null;
+  for(let m=active?s.start:ym;m<=ym;m=addM(m,1)){const ts=S.tasks.filter(t=>t.clientId===c.id&&qMonth(t)===m);
+    const u=ts.reduce((a,t)=>a+unitsOf(t),0),v=ts.reduce((a,t)=>a+vidsOf(t),0),h=ts.reduce((a,t)=>a+hrsOf(t),0);
+    const fu=Math.min(u,cu),ou=Math.min(u-fu,Q),xu=u-fu-ou,fv=Math.min(v,cv),ov=Math.min(v-fv,V),xv=v-fv-ov;
+    r={active,inst:active?mBetween(s.start,m)+1:0,term:+s.term||12,u,v,h,Q,V,H,carryU:cu,carryV:cv,availU:Q+cu,availV:V+cv,overU:xu,overV:xv,overAmt:xu*(+s.unitRate||0)+xv*(+s.videoRate||0),hoursOver:Math.max(0,h-H)};
+    cu=active?Q-ou:0;cv=active?V-ov:0}
+  return r}
+const meter=(l,u,a)=>`<div class="bar" style="--t:${u>a?'var(--warn)':'var(--acc)'}"><span>${l}</span><div class="tr"><i style="width:${a?Math.min(100,u/a*100).toFixed(1):(u?100:0)}%"></i></div><b>${+u.toFixed(1)} / ${a}</b></div>`;
+function quotaPanel(c,ym){const q=quota(c,ym);if(!q)return'';const s=c.sla;
+  return `<div class="panel"><div class="row" style="align-items:flex-start"><h3 style="color:var(--ink)">${esc(c.name)} · SLA quota</h3>${q.active?`<span class="pill acc">Instalment ${q.inst} of ${q.term}</span>`:`<span class="pill warn">${s.start?'Outside SLA term':'SLA not signed'}</span>`}</div>
+  <p class="hint">${q.active?'':`Preview: how ${mLabel(ym)} would count if the SLA were live. `}${q.carryU||q.carryV?`Includes ${q.carryU} units${q.carryV?' and '+q.carryV+' videos':''} carried from last month.`:''}</p>
+  <div class="bars" style="margin-top:10px">${meter('Design units',q.u,q.availU)}${meter('Videos',q.v,q.availV)}${q.H?meter('Web hours',q.h,q.H):''}</div>
+  <p class="hint" style="margin-top:10px">${q.overU||q.overV?`Over quota: ${[q.overU?q.overU+' units × '+R(s.unitRate):'',q.overV?q.overV+' videos × '+R(s.videoRate):''].filter(Boolean).join(' and ')} = <b>${R(q.overAmt)}</b> extra.`:`${Math.max(0,q.availU-q.u)} design units${q.V?' and '+Math.max(0,q.availV-q.v)+(Math.max(0,q.availV-q.v)===1?' video':' videos'):''} left${q.active&&q.inst<q.term?'; unused units carry into next month only':''}.`}${q.hoursOver?` ${+q.hoursOver.toFixed(1)} web hours over allowance: quote as a change request.`:''}</p></div>`}
+function quotaChips(){return S.clients.filter(slaOf).filter(c=>!S.f.client||S.f.client===c.id).map(c=>{const q=quota(c,S.month);return `<a class="pill${q.overU||q.overV?' warn':' acc'}" href="#plan" style="text-decoration:none">${esc(c.name.split(' ')[0])} quota · ${q.u}/${q.availU} units · ${q.v}/${q.availV} videos${q.active?'':' · preview'}</a>`}).join(' ')}
+
+/* ---------- board ---------- */
+function filtered(){
+  const ms=S.month+'-01',f=S.f,q=f.q.toLowerCase();
+  return S.tasks.filter(t=>{
+    if(S.scope==='month'&&!(ymOf(t.due)===S.month||!t.due||(!isDone(t)&&t.due<ms)||(t.status==='upcoming'&&t.due>=ms&&ymOf(t.due)<=addM(S.month,1))))return false;
+    if(f.client&&t.clientId!==f.client)return false;if(f.type&&t.type!==f.type)return false;if(f.who&&t.assignee!==f.who)return false;
+    if(q&&!(t.title+' '+cname(t.clientId)+' '+(t.notes||'')).toLowerCase().includes(q))return false;return true});
+}
+function card(t){
+  const amt=+t.amount?Rk(t.amount):'';
+  return `<article class="card" tabindex="0" draggable="true" data-act="open" data-id="${esc(t.id)}">
+  <div class="row">${tag(t.type)}<span class="due${late(t)?' late':''}">${t.due?(late(t)?'Late · ':'')+dShort(t.due):'No date'}</span></div>
+  <h4>${esc(t.title)}</h4>
+  <div class="row"><span>${esc(cname(t.clientId))}</span><span>${amt}</span></div>
+  ${(t.assignee||safeUrl(t.figmaUrl)||t.invoiceId)?`<div class="row"><span>${t.assignee?`<span class="who" title="${esc(t.assignee)}">${esc(initials(t.assignee))}</span>`:''}</span><span>${safeUrl(t.figmaUrl)?'Figma linked':''}${t.invoiceId?' · Invoiced':''}</span></div>`:''}
+  </article>`;
+}
+function board(){
+  const ts=filtered();
+  const who=[...new Set([...team(),...S.tasks.map(t=>t.assignee).filter(Boolean)])];
+  return `<div class="tools">
+    <div class="seg" role="group" aria-label="Scope"><button data-act="scope" data-v="month" aria-pressed="${S.scope==='month'}">This month</button><button data-act="scope" data-v="all" aria-pressed="${S.scope==='all'}">Everything</button></div>
+    <select id="fc" data-ch="fclient" aria-label="Client">${clientOpts(S.f.client,'All clients')}</select>
+    <select id="ft" data-ch="ftype" aria-label="Type">${opts(TYPES.map(t=>[t.k,t.n]),S.f.type,'All types')}</select>
+    <select id="fw" data-ch="fwho" aria-label="Assignee">${opts(who.map(w=>[w,w]),S.f.who,'Everyone')}</select>
+    <input id="fq" type="search" placeholder="Search" value="${esc(S.f.q)}" data-in="q" aria-label="Search">
+    <button class="pri" data-act="new">+ Deliverable</button></div>${S.scope==='month'&&S.clients.some(slaOf)?`<div class="tools">${quotaChips()}</div>`:''}
+  <div class="board" id="board">${STAGES.map(([k,n])=>{const c=ts.filter(t=>t.status===k).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9'));const sum=c.reduce((s,t)=>s+(+t.amount||0),0);
+    return `<section class="colm" data-stage="${k}" aria-label="${n}"><div class="colh">${n} <small>${c.length}${sum?' · '+Rk(sum):''}</small></div>${c.map(card).join('')||`<div class="empty">${S.tasks.length?'Nothing here':k==='upcoming'?'Import a client’s work list from Clients & import, or add a deliverable.':''}</div>`}</section>`}).join('')}</div>
+  <p class="hint">Drag cards between columns, or tap a card to move, edit or link a Figma file.</p>`;
+}
+
+/* ---------- month plan ---------- */
+function srow(t){return `<div class="srow" data-act="open" data-id="${esc(t.id)}"><span class="d${late(t)?' due late':''}">${t.due?dShort(t.due):'—'}</span><div><b>${esc(t.title)}</b><small>${esc(cname(t.clientId))}${t.assignee?' · '+esc(t.assignee):''}</small></div><div style="text-align:right">${tag(t.type)}<small>${SN[t.status]||''}</small></div></div>`}
+function plan(){
+  const m=S.tasks.filter(t=>ymOf(t.due)===S.month).sort((a,b)=>a.due.localeCompare(b.due));
+  const by=TYPES.map(t=>({...t,list:m.filter(x=>(x.type||'other')===t.k)})).filter(t=>t.list.length);
+  const max=Math.max(1,...by.map(t=>t.list.reduce((s,x)=>s+(+x.amount||0),0)));
+  const weeks=[[1,7],[8,14],[15,21],[22,28],[29,31]];
+  const pipe=[1,2,3].map(n=>addM(S.month,n));
+  const nodate=S.tasks.filter(t=>!t.due&&!isDone(t));
+  return `<div class="grid2"><div class="panel"><h2>${mLabel(S.month)}</h2><p class="hint">${m.length} deliverables due · ${m.filter(isDone).length} complete</p>
+  ${m.length?weeks.map(([a,b])=>{const w=m.filter(t=>{const d=+t.due.slice(8);return d>=a&&d<=b});return w.length?`<div class="wk">${a}–${Math.min(b,new Date(+S.month.slice(0,4),+S.month.slice(5),0).getDate())} ${MN[+S.month.slice(5)-1]}</div><div class="sched">${w.map(srow).join('')}</div>`:''}).join(''):'<p class="empty">Nothing due this month.</p>'}
+  ${nodate.length?`<div class="wk">No due date yet</div><div class="sched">${nodate.map(srow).join('')}</div>`:''}</div>
+  <div class="stackc">${S.clients.filter(slaOf).map(c=>quotaPanel(c,S.month)).join('')}<div class="panel"><h3>Deliverable mix</h3><p class="hint">Value by type this month, excl. VAT</p><div class="bars" style="margin-top:12px">${by.map(t=>{const v=t.list.reduce((s,x)=>s+(+x.amount||0),0);return `<div class="bar" style="--t:${t.c}"><span>${esc(t.n)} <small style="color:var(--mute)">${t.list.length}</small></span><div class="tr"><i style="width:${(v/max*100).toFixed(1)}%"></i></div><b>${Rk(v)}</b></div>`}).join('')||'<p class="empty">No deliverables yet.</p>'}</div></div>
+  <div class="panel"><h3>Upcoming</h3>${pipe.map(ym=>{const l=S.tasks.filter(t=>ymOf(t.due)===ym).sort((a,b)=>a.due.localeCompare(b.due));return `<div class="wk">${mLabel(ym)} · ${l.length} · ${Rk(l.reduce((s,t)=>s+(+t.amount||0),0))}</div>${l.length?`<div class="sched">${l.map(srow).join('')}</div>`:'<p class="empty">Nothing booked yet.</p>'}`}).join('')}</div></div></div>`;
+}
+
+/* ---------- invoices ---------- */
+const slaDup=c=>S.invoices.some(i=>i.clientId===c.id&&i.month===S.month&&i.sla);
+function candidates(cid){const end=S.month+'-31';return S.tasks.filter(t=>t.clientId===cid&&t.billable!==false&&!t.invoiceId&&+t.amount>0&&isDone(t)&&((t.completedAt||t.due||'')<=end))}
+function draftLines(){
+  const d=S.draft,c=client(d.clientId);if(!c)return[];
+  const l=candidates(c.id).filter(t=>!d.off[t.id]).map(t=>({d:t.title+' — '+(TY[t.type]||TY.other).n,q:1,r:+t.amount,taskId:t.id}));
+  const s=slaOf(c),q=quota(c,S.month);
+  if(s&&q.active){if(d.slaOn??!slaDup(c))l.unshift({d:`Monthly instalment ${q.inst} of ${q.term} — SLA ${s.ref||''} (${mLabel(S.month)})`.replace('SLA  ','SLA '),q:1,r:+s.fee,kind:'sla'});
+    if(d.overOn??true){if(q.overU)l.push({d:'Additional design units beyond monthly quota',q:q.overU,r:+s.unitRate,kind:'over'});if(q.overV)l.push({d:'Additional video productions beyond monthly quota',q:q.overV,r:+s.videoRate,kind:'over'})}}
+  else if(+c.retainer>0&&d.ret)l.unshift({d:'Monthly retainer — '+mLabel(S.month),q:1,r:+c.retainer});
+  return l.concat(d.extra);
+}
+const sums=lines=>{const sub=lines.reduce((s,l)=>s+l.q*l.r,0),vat=Math.round(sub*(+st().vatRate||0))/100;return{sub,vat,total:sub+vat}};
+function invoices(){
+  const d=S.draft,c=client(d.clientId),cand=c?candidates(c.id):[],lines=draftLines(),t=sums(lines),rate=+st().vatRate||0;
+  const list=S.invoices.slice().sort((a,b)=>(b.number||'').localeCompare(a.number||''));
+  const paid=list.filter(i=>i.status==='paid').reduce((s,i)=>s+(+i.total||0),0),out=list.filter(i=>i.status==='sent').reduce((s,i)=>s+(+i.total||0),0);
+  return `<div class="grid2"><div class="panel stackc"><div><h2>Generate ${MN[+S.month.slice(5)-1]} invoice</h2><p class="hint">Pulls approved and done deliverables not yet invoiced, plus any retainer. VAT at ${rate}%.</p></div>
+  <label class="f">Client<select id="ic" data-ch="iclient">${clientOpts(d.clientId,'Choose a client')}</select></label>
+  ${c?`<div>${slaOf(c)?slaBlock(c):+c.retainer>0?`<label class="cl"><input type="checkbox" data-ch="iret" ${d.ret?'checked':''}> Monthly retainer · ${R(c.retainer)}</label>`:''}
+  ${cand.map(x=>`<label class="cl" style="padding:6px 0"><input type="checkbox" data-ch="itask" data-id="${esc(x.id)}" ${d.off[x.id]?'':'checked'}> <span style="flex:1">${esc(x.title)} <small style="color:var(--mute)">· ${SN[x.status]}</small></span><b style="white-space:nowrap">${R(x.amount)}</b></label>`).join('')||(+c.retainer>0||slaOf(c)?'':'<p class="empty">No completed, uninvoiced deliverables for this client up to '+mLabel(S.month)+'.</p>')}
+  ${d.extra.map((x,i)=>`<div class="cl" style="padding:6px 0"><span style="flex:1">${esc(x.d)} ${x.q!==1?'× '+x.q:''}</span><b style="white-space:nowrap">${R(x.q*x.r)}</b><button class="ghost icon" data-act="xdel" data-i="${i}" aria-label="Remove line">×</button></div>`).join('')}
+  <div class="fl" style="margin-top:8px"><input id="xd" placeholder="Extra line, e.g. Stock imagery" style="flex:3 1 200px"><input id="xq" type="number" min="0" step="0.5" value="1" aria-label="Quantity" style="flex:1 1 70px"><input id="xr" type="number" min="0" step="50" placeholder="Rate" aria-label="Rate" style="flex:1 1 100px"><button data-act="xadd">Add line</button></div>
+  <div class="tot"><span>Subtotal</span><b>${R(t.sub)}</b><span>VAT ${rate}%</span><b>${R(t.vat)}</b><span>Total</span><b class="big">${R(t.total)}</b></div>
+  <button class="pri" data-act="icreate" ${lines.length?'':'disabled'}>Create invoice ${esc(nextNo())}</button>
+  ${st().vat?'':'<p class="hint">Add your VAT number in Studio details so it prints on tax invoices.</p>'}</div>`:''}</div>
+  <div class="panel"><h3>All invoices</h3><p class="hint">${R(out)} outstanding · ${R(paid)} paid</p>
+  ${list.length?`<table class="stack" style="margin-top:10px"><thead><tr><th>Invoice</th><th>Client</th><th class="n">Total</th><th>Status</th><th></th></tr></thead><tbody>${list.map(i=>`<tr><td><b>${esc(i.number)}</b><br><small style="color:var(--mute)">${esc(mLabel(i.month))}</small></td><td>${esc(cname(i.clientId))}</td><td class="n">${R(i.total)}</td><td><select id="is-${esc(i.id)}" data-ch="istatus" data-id="${esc(i.id)}" aria-label="Status" style="min-width:110px">${opts([['draft','Draft'],['sent','Sent'],['paid','Paid']],i.status)}</select></td><td><div class="fl"><button data-act="ipdf" data-id="${esc(i.id)}" ${downloads?'':'disabled title="Downloads unavailable here"'}>PDF</button><button class="ghost" data-act="idel" data-id="${esc(i.id)}">Delete</button></div></td></tr>`).join('')}</tbody></table>`:'<p class="empty">No invoices yet. Pick a client on the left to generate one.</p>'}</div></div>`;
+}
+function slaBlock(c){const s=c.sla,q=quota(c,S.month),d=S.draft;
+  if(!q.active)return `<p class="hint" style="padding:6px 0">${s.start?`${mLabel(S.month)} is outside the SLA term (${mLabel(s.start)} + ${q.term} months), so only extra work is billed here.`:`The SLA isn’t signed yet, so no instalment is billed. Once it’s signed, set the commencement month on the client and each month’s invoice adds the ${R(s.fee)} instalment and any over-quota units.`}</p>`;
+  const dup=slaDup(c);
+  return `<label class="cl" style="padding:6px 0"><input type="checkbox" data-ch="islaon" ${(d.slaOn??!dup)?'checked':''}> <span style="flex:1">Instalment ${q.inst} of ${q.term} · ${esc(s.ref||'SLA')}${dup?' <small style="color:var(--warn)">· already invoiced this month</small>':''}</span><b style="white-space:nowrap">${R(s.fee)}</b></label>
+  ${q.overU||q.overV?`<label class="cl" style="padding:6px 0"><input type="checkbox" data-ch="iover" ${(d.overOn??true)?'checked':''}> <span style="flex:1">Over quota: ${[q.overU?q.overU+' design units':'',q.overV?q.overV+' videos':''].filter(Boolean).join(', ')}</span><b style="white-space:nowrap">${R(q.overAmt)}</b></label>`:`<p class="hint">${q.u} of ${q.availU} design units and ${q.v} of ${q.availV} videos used; nothing over quota.</p>`}`}
+function nextNo(){const p=(st().prefix||'PAG')+'-'+S.month.replace('-','')+'-';const n=Math.max(0,...S.invoices.filter(i=>(i.number||'').startsWith(p)).map(i=>+i.number.slice(p.length)||0))+1;return p+pad(n)}
+async function createInvoice(){
+  const d=S.draft,lines=draftLines();if(!lines.length)return;const t=sums(lines),s=st();
+  const cs=slaOf(client(d.clientId)),terms=+(cs&&cs.terms)||+s.terms||14;
+  const inv={id:uid('inv'),number:nextNo(),clientId:d.clientId,month:S.month,issued:TODAY,due:addD(TODAY,terms),terms,sla:lines.some(l=>l.kind==='sla'),ref:cs&&lines.some(l=>l.kind)?cs.ref||'':'',lines,subtotal:t.sub,vat:t.vat,vatRate:+s.vatRate||0,total:t.total,status:'draft',taskIds:lines.filter(l=>l.taskId).map(l=>l.taskId)};
+  S.draft={clientId:d.clientId,off:{},ret:true,extra:[]};
+  await put('invoices',inv);
+  for(const id of inv.taskIds){const x=S.tasks.find(t=>t.id===id);if(x)await put('tasks',{...x,invoiceId:inv.id})}
+  toast(inv.number+' created');
+}
+async function deleteInvoice(id){const inv=S.invoices.find(i=>i.id===id);if(!inv)return;await del('invoices',id);for(const tid of inv.taskIds||[]){const x=S.tasks.find(t=>t.id===tid);if(x&&x.invoiceId===id){const{invoiceId,...rest}=x;await put('tasks',rest)}}toast(inv.number+' deleted; deliverables can be invoiced again')}
+async function pdf(inv){
+  const J=window.jspdf&&window.jspdf.jsPDF;if(!J){toast('The PDF library didn’t load — try again.');return}
+  const s=st(),c=client(inv.clientId)||{},doc=new J({unit:'mm',format:'a4'}),P=t=>String(t??'').replace(/ /g,' ');
+  const money=n=>P(R(n));let y=22;
+  doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text(P(s.name),20,y);
+  doc.setFontSize(18);doc.text(s.vat?'TAX INVOICE':'INVOICE',190,y,{align:'right'});
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(90);
+  let ly=y+6;[`Reg. No. ${s.reg}`,s.vat?`VAT No. ${s.vat}`:'',...String(s.address||'').split('\n'),s.email,s.phone].filter(Boolean).forEach(l=>{doc.text(P(l),20,ly);ly+=4.4});
+  let ry=y+6;[['Invoice no.',inv.number],['Date',inv.issued],['Due',inv.due],['Period',mLabel(inv.month)],...(inv.ref?[['Agreement',inv.ref]]:[])].forEach(([a,b])=>{doc.text(a,150,ry);doc.setTextColor(20);doc.text(P(b),190,ry,{align:'right'});doc.setTextColor(90);ry+=4.4});
+  y=Math.max(ly,ry)+8;doc.setTextColor(20);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('Bill to',20,y);doc.setFont('helvetica','normal');doc.setFontSize(9.5);y+=5;
+  [c.name,c.contact,c.email,...String(c.address||'').split('\n'),c.vat?'VAT No. '+c.vat:''].filter(Boolean).forEach(l=>{doc.text(P(l),20,y);y+=4.6});
+  y+=6;doc.setFillColor(238,236,231);doc.rect(20,y-4.5,170,7,'F');doc.setFont('helvetica','bold');doc.text('Description',22,y);doc.text('Qty',130,y,{align:'right'});doc.text('Rate',158,y,{align:'right'});doc.text('Amount',188,y,{align:'right'});
+  doc.setFont('helvetica','normal');y+=8;
+  for(const l of inv.lines){const w=doc.splitTextToSize(P(l.d),100);if(y+w.length*4.6>265){doc.addPage();y=22}doc.text(w,22,y);doc.text(String(l.q),130,y,{align:'right'});doc.text(money(l.r),158,y,{align:'right'});doc.text(money(l.q*l.r),188,y,{align:'right'});y+=w.length*4.6+2.4;doc.setDrawColor(226,224,218);doc.line(20,y-2.6,190,y-2.6)}
+  if(y>235){doc.addPage();y=22}y+=4;
+  [['Subtotal',inv.subtotal],[`VAT (${inv.vatRate}%)`,inv.vat]].forEach(([a,b])=>{doc.text(a,158,y,{align:'right'});doc.text(money(b),188,y,{align:'right'});y+=5.5});
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('Total due',158,y+1,{align:'right'});doc.text(money(inv.total),188,y+1,{align:'right'});
+  y+=14;doc.setFontSize(9.5);if(s.bank){if(y>250){doc.addPage();y=22}doc.text('Banking details',20,y);doc.setFont('helvetica','normal');y+=5;const b=doc.splitTextToSize(P(s.bank),170);doc.text(b,20,y);y+=b.length*4.6+4}
+  doc.setFont('helvetica','normal');doc.setTextColor(90);doc.text(P(`Payment due within ${inv.terms||s.terms||14} days. Please use ${inv.number} as your payment reference.`),20,Math.min(y+2,282));
+  try{saveFile(inv.number+'.pdf',doc.output('blob'));toast('Downloading '+inv.number+'.pdf')}catch(e){toast('Couldn’t create the PDF')}
+}
+
+/* ---------- reviews ---------- */
+const prevArt=t=>`<svg viewBox="0 0 160 100" aria-hidden="true"><rect x="8" y="8" width="144" height="84" rx="8" fill="var(--panel)" stroke="var(--line)"/><rect x="8" y="8" width="144" height="14" rx="8" fill="${(TY[t.type]||TY.other).c}" opacity=".85"/><rect x="20" y="32" width="60" height="8" rx="3" fill="var(--line)"/><rect x="20" y="46" width="90" height="5" rx="2" fill="var(--line)"/><rect x="20" y="56" width="76" height="5" rx="2" fill="var(--line)"/><rect x="104" y="32" width="36" height="46" rx="5" fill="var(--soft)"/><rect x="20" y="68" width="34" height="11" rx="5" fill="var(--acc)"/></svg>`;
+function reviews(){
+  const order={changes:1,waiting:0,approved:2};
+  const l=S.tasks.filter(t=>t.status==='review'||safeUrl(t.figmaUrl)).sort((a,b)=>(order[a.review||'waiting']-order[b.review||'waiting'])||(a.due||'').localeCompare(b.due||''));
+  const pillOf=t=>t.review==='approved'||t.status==='approved'||t.status==='done'?'<span class="pill ok">Approved</span>':t.review==='changes'?'<span class="pill warn">Changes requested</span>':t.status==='review'?'<span class="pill acc">Awaiting client</span>':'<span class="pill">In progress</span>';
+  return `<div style="margin-bottom:14px"><h2>Design reviews</h2><p class="hint">Deliverables with a Figma link or sitting in client review. Figma can’t be embedded on this page, so each card links out; upload a frame export as the preview.</p></div>
+  <div class="revs">${l.map(t=>{const u=safeUrl(t.figmaUrl),fb=(t.feedback||[]).slice(-4);return `<article class="rev"><div class="prev">${t.previewId&&prevUrl(t.previewId)?`<img src="${esc(prevUrl(t.previewId))}" alt="Preview of ${esc(t.title)}">`:prevArt(t)}</div><div class="bd">
+    <div class="row">${tag(t.type)}${pillOf(t)}</div><div><h3>${esc(t.title)}</h3><p class="hint">${esc(cname(t.clientId))}${t.due?' · due '+dShort(t.due):''}</p></div>
+    <div class="acts">${u?`<a class="btn" href="${esc(u)}" target="_blank" rel="noopener">Open in Figma ↗</a>`:`<button data-act="open" data-id="${esc(t.id)}">Add Figma link</button>`}${assets?`<label class="btn">Upload preview<input type="file" accept="image/*" data-ch="prev" data-id="${esc(t.id)}" hidden></label>`:''}</div>
+    ${fb.length?`<div class="log">${fb.map(f=>`<p><b>${esc(f.by)}</b> · ${esc(dShort(f.at))} — ${esc(f.text)}</p>`).join('')}</div>`:''}
+    <div class="fl"><select id="fbw-${esc(t.id)}" aria-label="From" style="flex:0 0 110px">${opts([['Client','Client'],['Studio','Studio']],'Client')}</select><input id="fb-${esc(t.id)}" placeholder="Feedback or note" style="flex:1 1 160px"></div>
+    <div class="acts"><button class="pri" data-act="rapprove" data-id="${esc(t.id)}">Approve</button><button data-act="rchanges" data-id="${esc(t.id)}">Request changes</button><button class="ghost" data-act="rnote" data-id="${esc(t.id)}">Add note</button></div>
+  </div></article>`}).join('')||'<p class="empty">No designs in review. Open a deliverable and paste its Figma link to track it here.</p>'}</div>`;
+}
+function logFb(t,by,text){return [...(t.feedback||[]),{by,text,at:TODAY}].slice(-30)}
+
+/* ---------- client updates ---------- */
+function genUpdate(cid){
+  const c=client(cid);if(!c)return'';const s=st();
+  const last=S.updates.filter(u=>u.clientId===cid).sort((a,b)=>(b.at||0)-(a.at||0))[0];const since=last?last.date:addD(TODAY,-1);
+  const ts=S.tasks.filter(t=>t.clientId===cid);
+  const done=ts.filter(t=>isDone(t)&&t.completedAt&&t.completedAt>=since),doing=ts.filter(t=>t.status==='doing'),rev=ts.filter(t=>t.status==='review'),next=ts.filter(t=>(t.status==='todo'||t.status==='upcoming')&&t.due&&t.due<=addD(TODAY,14)).sort((a,b)=>a.due.localeCompare(b.due));
+  const first=(c.contact||'').split(/\s+/)[0]||'team';const ln=a=>a.map(x=>x).join('\n');
+  const parts=[`Hi ${first},`,``,`Here’s today’s update from ${s.name.replace(/ \(Pty\) Ltd$/,'')} (${dShort(TODAY)}).`];
+  if(done.length)parts.push('',`Completed`,ln(done.map(t=>`• ${t.title}`)));
+  if(doing.length)parts.push('',`In progress`,ln(doing.map(t=>`• ${t.title}${t.due?` — on track for ${dShort(t.due)}`:''}`)));
+  if(rev.length)parts.push('',`Ready for your review`,ln(rev.map(t=>`• ${t.title}${safeUrl(t.figmaUrl)?`\n  ${t.figmaUrl}`:''}`)));
+  if(next.length)parts.push('',`Coming up`,ln(next.map(t=>`• ${t.title} — ${dShort(t.due)}`)));
+  if(!done.length&&!doing.length&&!rev.length&&!next.length)parts.push('','No changes since our last update — we’ll be in touch as work starts on the next items.');
+  const qq=quota(c,ymOf(TODAY));if(qq&&qq.active)parts.push('',`This month so far: ${qq.u} of ${qq.availU} design units and ${qq.v} of ${qq.availV} videos delivered.`);
+  parts.push('',rev.length?'Please share any feedback on the review items when you can, or reply here if you’d like us to reprioritise anything.':'Reply here if you’d like us to reprioritise anything.','',`Kind regards,`,s.sender||'',s.name);
+  return parts.join('\n');
+}
+function updates(){
+  const u=S.up,c=client(u.clientId);const hist=S.updates.filter(x=>x.clientId===u.clientId).sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,6);
+  const act=S.clients.map(c=>{const ts=S.tasks.filter(t=>t.clientId===c.id&&!isDone(t));const last=S.updates.filter(x=>x.clientId===c.id).sort((a,b)=>(b.at||0)-(a.at||0))[0];return{c,open:ts.length,rev:ts.filter(t=>t.status==='review').length,last}}).filter(x=>x.open);
+  const mail=c&&c.email&&u.text?`mailto:${encodeURIComponent(c.email)}?subject=${encodeURIComponent('Daily update — '+dShort(TODAY))}&body=${encodeURIComponent(u.text)}`:'';
+  return `<div class="grid2"><div class="panel stackc"><div><h2>Today’s client update</h2><p class="hint">Built from the board: what was completed since the last update, what’s in progress, what needs their review and what’s next.</p></div>
+  <label class="f">Client<select id="uc" data-ch="uclient">${clientOpts(u.clientId,'Choose a client')}</select></label>
+  ${c?`<textarea id="ut" data-in="utext" rows="14" aria-label="Update text">${esc(u.text)}</textarea>
+  <div class="acts"><button class="pri" data-act="ucopy">Copy</button>${sample?'<button data-act="upolish" id="upb">Polish with Claude</button>':''}<button data-act="uregen" class="ghost">Rebuild</button><button data-act="ulog">Mark as sent</button></div>
+  ${c.email?`<p class="hint">Send to ${esc(c.email)}${mail?` · <a href="${mail}">open in mail app</a>`:''}</p>`:'<p class="hint">Add an email for this client to open the update in your mail app.</p>'}
+  ${hist.length?`<div><h3 style="margin-top:6px">Sent before</h3>${hist.map(h=>`<details style="padding:8px 0;border-bottom:1px solid var(--line)"><summary>${esc(dShort(h.date))} ${esc(h.date.slice(0,4))}</summary><pre style="white-space:pre-wrap;font:14px/1.5 inherit;margin:8px 0 0">${esc(h.text)}</pre></details>`).join('')}</div>`:''}`:''}</div>
+  <div class="panel"><h3>Active clients</h3><p class="hint">Who has open work, and when they last heard from you.</p>
+  ${act.length?`<table class="stack" style="margin-top:8px"><thead><tr><th>Client</th><th class="n">Open</th><th class="n">In review</th><th>Last update</th><th></th></tr></thead><tbody>${act.map(x=>`<tr><td>${esc(x.c.name)}</td><td class="n">${x.open}</td><td class="n">${x.rev}</td><td>${x.last?(x.last.date===TODAY?'<span class="pill ok">Today</span>':esc(dShort(x.last.date))):'<span class="pill warn">Never</span>'}</td><td><button data-act="udraft" data-id="${esc(x.c.id)}">Draft</button></td></tr>`).join('')}</tbody></table>`:'<p class="empty">No clients with open work.</p>'}</div></div>`;
+}
+
+/* ---------- clients & import ---------- */
+function clients(){
+  const list=S.clients.slice().sort((a,b)=>a.name.localeCompare(b.name));
+  return `<div class="grid2"><div class="panel"><div class="row" style="margin-bottom:8px"><h2 style="color:var(--ink)">Clients</h2><button class="pri" data-act="cnew">+ Client</button></div>
+  ${list.length?`<table class="stack"><thead><tr><th>Client</th><th class="n">Open</th><th class="n">${MN[+S.month.slice(5)-1].slice(0,3)} value</th><th class="n">Retainer / SLA</th><th></th></tr></thead><tbody>${list.map(c=>{const ts=S.tasks.filter(t=>t.clientId===c.id);return `<tr><td><b>${esc(c.name)}</b>${c.contact?`<br><small style="color:var(--mute)">${esc(c.contact)}</small>`:''}</td><td class="n">${ts.filter(t=>!isDone(t)).length}</td><td class="n">${Rk(ts.filter(t=>ymOf(t.due)===S.month).reduce((s,t)=>s+(+t.amount||0),0))}</td><td class="n">${slaOf(c)?`SLA ${Rk(c.sla.fee)}${c.sla.start?'':'<br><small style="color:var(--warn)">not signed</small>'}`:+c.retainer?Rk(c.retainer):'—'}</td><td><button class="ghost" data-act="cedit" data-id="${esc(c.id)}">Edit</button></td></tr>`}).join('')}</tbody></table>`:'<p class="empty">Add your first client.</p>'}</div>
+  <div class="panel stackc"><div><h2>Load a client’s work list</h2><p class="hint">Paste the list a client shares (one item per line, or CSV with columns like title, type, due, amount), or upload a .csv / .txt file. Items land in Upcoming.</p></div>
+  <label class="f">Client<select id="mc" data-ch="impclient">${clientOpts(S.impClient,'Choose a client')}</select></label>
+  <textarea id="mt" placeholder="Annual report layout, 15/01/2027&#10;Social campaign: 6 posts — 20 Jan&#10;Website landing page refresh"></textarea>
+  <div class="acts"><label class="btn">Upload file<input type="file" accept=".csv,.txt,text/plain,text/csv" data-ch="impfile" hidden></label><button data-act="impparse">Read list</button>${sample?'<button data-act="impai" id="impai">Read with Claude</button>':''}</div>
+  ${S.imp.length?`<table class="stack"><thead><tr><th></th><th>Item</th><th>Type</th><th>Due</th><th class="n">Amount</th></tr></thead><tbody>${S.imp.map((r,i)=>`<tr><td><input type="checkbox" data-ch="imp" data-i="${i}" data-k="on" ${r.on?'checked':''} aria-label="Include"></td><td><input id="it${i}" data-ch="imp" data-i="${i}" data-k="title" value="${esc(r.title)}" aria-label="Title"></td><td><select id="iy${i}" data-ch="imp" data-i="${i}" data-k="type" aria-label="Type">${opts(TYPES.map(t=>[t.k,t.n]),r.type)}</select></td><td><input id="id${i}" type="date" data-ch="imp" data-i="${i}" data-k="due" value="${esc(r.due)}" aria-label="Due"></td><td><input id="ia${i}" type="number" min="0" step="100" data-ch="imp" data-i="${i}" data-k="amount" value="${esc(r.amount||'')}" aria-label="Amount" style="max-width:120px"></td></tr>`).join('')}</tbody></table>
+  <div class="acts"><button class="pri" data-act="impadd" ${S.impClient?'':'disabled'}>Add ${S.imp.filter(r=>r.on).length} to Upcoming</button><button class="ghost" data-act="impclear">Clear</button></div>${S.impClient?'':'<p class="hint">Choose the client first.</p>'}`:''}</div></div>`;
+}
+function guessType(s){s=s.toLowerCase();for(const[k,re]of[['brand',/brand|logo|identity|cip/],['deck',/report|deck|presentation|annual|pitch|proposal|brochure/],['social',/social|post|campaign|instagram|linkedin|tiktok|reel|banner/],['research',/research|interview|survey|usability|test|persona/],['web',/web|site|landing|wordpress|homepage/],['uiux',/ui|ux|app|screen|prototype|flow|wireframe|portal|dashboard/],['dev',/dev|build|code|integration|api|deploy/]])if(re.test(s))return k;return'other'}
+function parseDate(s){if(!s)return'';s=s.trim();let m=s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return m[1]+'-'+pad(m[2])+'-'+pad(m[3]);m=s.match(/\b(\d{1,2})[\/.](\d{1,2})[\/.](\d{2,4})\b/);if(m){const y=m[3].length===2?'20'+m[3]:m[3];return y+'-'+pad(m[2])+'-'+pad(m[1])}
+  m=s.match(/\b(\d{1,2})\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?(?:\s+(\d{4}))?/i);if(m){const mo=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'].indexOf(m[2].toLowerCase())+1;let y=m[3]||TODAY.slice(0,4);let d=y+'-'+pad(mo)+'-'+pad(m[1]);if(!m[3]&&d<TODAY)d=(+y+1)+d.slice(4);return d}return''}
+function splitCsv(line){const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(q){if(ch==='"'&&line[i+1]==='"'){cur+='"';i++}else if(ch==='"')q=false;else cur+=ch}else if(ch==='"')q=true;else if(ch===','||ch===';'||ch==='\t'){out.push(cur);cur=''}else cur+=ch}out.push(cur);return out.map(s=>s.trim())}
+function parseList(txt){
+  const lines=txt.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);if(!lines.length)return[];
+  const h=splitCsv(lines[0]).map(x=>x.toLowerCase());const col=re=>h.findIndex(x=>re.test(x));const ti=col(/title|task|deliverable|item|name|project/);
+  if(h.length>1&&ti>=0){const ty=col(/type|category/),du=col(/due|date|deadline/),am=col(/amount|budget|fee|price|value/),no=col(/note|desc|brief|detail/);
+    return lines.slice(1).map(splitCsv).filter(r=>r[ti]).map(r=>{const t=r[ti];return{on:true,title:t,type:ty>=0&&TY[guessType(r[ty])]?guessType(r[ty]+' '+t):guessType(t),due:du>=0?parseDate(r[du]):'',amount:am>=0?(+String(r[am]).replace(/[^\d.]/g,'')||''):'',notes:no>=0?r[no]:''}})}
+  return lines.map(l=>{const raw=l.replace(/^[-*•\d.)\s]+/,'');const due=parseDate(raw);const title=raw.replace(/[,–—-]?\s*(\d{4}-\d{1,2}-\d{1,2}|\d{1,2}[\/.]\d{1,2}[\/.]\d{2,4}|\d{1,2}\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?(\s+\d{4})?)\s*$/i,'').replace(/[\s,–—-]+$/,'').trim()||raw;return{on:true,title,type:guessType(title),due,amount:'',notes:''}});
+}
+async function impAI(){
+  const txt=$('#mt').value.trim();if(!txt){toast('Paste a list first');return}const b=$('#impai');b.disabled=true;b.textContent='Reading…';
+  try{const r=await sample.json(`Extract the design/digital deliverables from this client work list. Today is ${TODAY}. Return a JSON array of objects {"title":string,"type":one of ${TYPES.map(t=>'"'+t.k+'"').join(',')},"due":"YYYY-MM-DD" or "","amount":number or 0,"notes":string}. Dates written like 05/02/2027 are day/month/year. Do not invent dates or amounts. List:\n\n${txt}`,{modelTier:'quick'});
+    const arr=Array.isArray(r)?r:(r&&r.items)||[];S.imp=arr.filter(x=>x&&x.title).map(x=>({on:true,title:String(x.title).slice(0,200),type:TY[x.type]?x.type:guessType(String(x.title)),due:/^\d{4}-\d{2}-\d{2}$/.test(x.due)?x.due:'',amount:+x.amount||'',notes:String(x.notes||'').slice(0,500)}));render(true);if(!S.imp.length)toast('Nothing found in that list')}
+  catch(e){toast(e&&e.code==='not_granted'?'Claude isn’t available on this page':'Couldn’t read the list — try “Read list”');b.disabled=false;b.textContent='Read with Claude'}
+}
+
+/* ---------- studio details ---------- */
+function studio(){const s=st();const f=(k,l,type='text',extra='')=>`<label class="f">${l}<input id="s-${k}" data-s="${k}" type="${type}" value="${esc(s[k])}" ${extra}></label>`;
+  return `<div class="grid2"><div class="panel stackc"><div><h2>Studio details</h2><p class="hint">Printed on every invoice and used to sign client updates.</p></div>
+  ${f('name','Company name')}<div class="f2">${f('reg','Registration no.')}${f('vat','VAT no.')}</div>
+  <label class="f">Address<textarea id="s-address" data-s="address" rows="3">${esc(s.address)}</textarea></label>
+  <div class="f2">${f('email','Billing email','email')}${f('phone','Phone','tel')}</div>
+  <label class="f">Banking details<textarea id="s-bank" data-s="bank" rows="4" placeholder="Bank, account name, account number, branch code">${esc(s.bank)}</textarea></label>
+  <div class="f2">${f('prefix','Invoice prefix')}${f('terms','Payment terms (days)','number','min="0"')}</div>
+  <div class="f2">${f('vatRate','VAT rate (%)','number','min="0" step="0.5"')}${f('sender','Sign updates as')}</div>
+  ${f('team','Team members (comma separated)')}
+  <button class="pri" data-act="ssave">Save details</button></div>
+  <div class="panel stackc"><h3>How this desk works</h3><p class="hint" style="font-size:15px">Only approved email addresses can sign in and open or change the studio data. Clients don’t see this page: they get the daily update text (with Figma review links) by email or WhatsApp.</p><p class="hint" style="font-size:15px">Invoices download as PDF. Deliverables marked billable and moved to Approved or Done are offered on the next invoice for that client, and can’t be billed twice.</p></div></div>`}
+
+/* ---------- editors ---------- */
+const ov=$('#ov'),sheet=$('#sheet');let ed=null;
+function closeOv(){ov.classList.remove('on');ed=null}
+ov.addEventListener('click',e=>{if(e.target===ov)closeOv()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ed)closeOv();if(e.key==='Enter'&&e.target.classList.contains('card'))openTask(e.target.dataset.id)});
+function openTask(id,preset){
+  const t=id?{...S.tasks.find(x=>x.id===id)}:{id:uid('t'),title:'',clientId:S.f.client||'',type:'uiux',status:'todo',due:'',amount:'',billable:true,assignee:'',figmaUrl:'',notes:'',...preset};
+  if(!t.id)return;ed={kind:'task',t,isNew:!id,armed:false};
+  sheet.innerHTML=`<div class="row"><h2 style="color:var(--ink)">${id?'Edit deliverable':'New deliverable'}</h2><button class="ghost icon" data-act="close" aria-label="Close">×</button></div>
+  <label class="f">Title<input id="e-title" value="${esc(t.title)}" placeholder="e.g. Annual report layout"></label>
+  <div class="chips" role="group" aria-label="Stage">${STAGES.map(([k,n])=>`<button data-act="estage" data-v="${k}" aria-pressed="${t.status===k}">${n}</button>`).join('')}</div>
+  <div class="f2"><label class="f">Client<select id="e-client">${clientOpts(t.clientId,'No client')}</select></label><label class="f">Type<select id="e-type">${opts(TYPES.map(x=>[x.k,x.n]),t.type)}</select></label>
+  <label class="f">Due<input id="e-due" type="date" value="${esc(t.due)}"></label><label class="f">Assignee<input id="e-who" list="teamlist" value="${esc(t.assignee)}"><datalist id="teamlist">${team().map(n=>`<option value="${esc(n)}">`).join('')}</datalist></label>
+  <label class="f">Fee excl. VAT (R)<input id="e-amt" type="number" min="0" step="100" value="${esc(t.amount)}"></label><label class="f">Hours estimate<input id="e-hrs" type="number" min="0" step="0.5" value="${esc(t.hours||'')}"></label>
+  ${slaOf(client(t.clientId))||S.clients.some(slaOf)?`<label class="f">Design units (SLA quota)<input id="e-units" type="number" min="0" step="0.25" value="${esc(t.units??'')}" placeholder="${unitsOf(t)} (default)"></label><p class="hint" style="align-self:end">One concept in one format = 1 unit; resizes beyond 3 = ¼ each. Videos count separately. Fees here are for out-of-scope extras only.</p>`:''}</div>
+  <label class="cl"><input id="e-bill" type="checkbox" ${t.billable!==false?'checked':''}> Billable${t.invoiceId?' · already invoiced':''}</label>
+  <label class="f">Figma link<input id="e-fig" type="url" placeholder="https://www.figma.com/design/…" value="${esc(t.figmaUrl)}"></label>
+  <label class="f">Notes<textarea id="e-notes" rows="3">${esc(t.notes)}</textarea></label>
+  <div class="acts"><button class="pri" data-act="esave">Save</button><button class="ghost" data-act="close">Cancel</button>${id?'<button class="ghost" data-act="edel" style="margin-left:auto;color:var(--warn)">Delete</button>':''}</div>`;
+  ov.classList.add('on');setTimeout(()=>$('#e-title').focus(),30);
+}
+function openClient(id){
+  const c=id?{...client(id)}:{id:uid('c'),name:'',contact:'',email:'',phone:'',vat:'',address:'',retainer:'',notes:''};ed={kind:'client',c,armed:false};
+  const f=(k,l,type='text')=>`<label class="f">${l}<input id="c-${k}" type="${type}" value="${esc(c[k])}"></label>`,sl=c.sla||{},sf=(k,l,type='text')=>`<label class="f">${l}<input id="sl-${k}" type="${type}" value="${esc(sl[k]??'')}"></label>`;
+  sheet.innerHTML=`<div class="row"><h2 style="color:var(--ink)">${id?'Edit client':'New client'}</h2><button class="ghost icon" data-act="close" aria-label="Close">×</button></div>
+  ${f('name','Client name')}<div class="f2">${f('contact','Contact person')}${f('email','Email','email')}${f('phone','Phone','tel')}${f('vat','Client VAT no.')}</div>
+  <label class="f">Billing address<textarea id="c-address" rows="3">${esc(c.address)}</textarea></label>
+  ${f('retainer','Monthly retainer excl. VAT (R, optional)','number')}
+  <details ${c.sla?'open':''} style="border-top:1px solid var(--line);padding-top:10px"><summary style="font-weight:600;cursor:pointer;min-height:32px">Service level agreement</summary><div class="f2" style="margin-top:10px">${sf('ref','Agreement ref')}${sf('start','Commencement month (blank = not signed)','month')}${sf('fee','Monthly instalment excl. VAT (R)','number')}${sf('term','Term (months)','number')}${sf('units','Design units per month','number')}${sf('videos','Videos per month','number')}${sf('hours','Web update hours per month','number')}${sf('terms','Payment terms (days)','number')}${sf('unitRate','Extra design unit (R)','number')}${sf('videoRate','Extra video (R)','number')}</div><p class="hint">Unused units carry into the next month only. Leave the instalment blank to remove the SLA.</p></details>
+  <label class="f">Notes<textarea id="c-notes" rows="2">${esc(c.notes)}</textarea></label>
+  <div class="acts"><button class="pri" data-act="csave">Save</button><button class="ghost" data-act="close">Cancel</button>${id?'<button class="ghost" data-act="cdel" style="margin-left:auto;color:var(--warn)">Delete</button>':''}</div>`;
+  ov.classList.add('on');setTimeout(()=>$('#c-name').focus(),30);
+}
+const val=id=>($('#'+id)||{}).value??'';
+function stageFix(t,prev){if(isDone(t)&&!t.completedAt)t.completedAt=TODAY;if(!isDone(t))delete t.completedAt;if(t.status==='review'&&prev!=='review')t.review='waiting';if(t.status==='approved'||t.status==='done')t.review=t.review==='changes'?'approved':t.review;return t}
+
+/* ---------- actions ---------- */
+const A={
+  mprev:()=>{S.month=addM(S.month,-1);render(true)},mnext:()=>{S.month=addM(S.month,1);render(true)},mnow:()=>{S.month=ymOf(TODAY);render(true)},
+  scope:el=>{S.scope=el.dataset.v;render(true)},new:()=>openTask(null),open:(el,id)=>openTask(id),close:closeOv,
+  estage:el=>{ed.t.status=el.dataset.v;sheet.querySelectorAll('[data-act=estage]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===ed.t.status))},
+  esave:async()=>{const t=ed.t,prev=(S.tasks.find(x=>x.id===t.id)||{}).status;Object.assign(t,{title:val('e-title').trim()||'Untitled deliverable',clientId:val('e-client'),type:val('e-type'),due:val('e-due'),assignee:val('e-who').trim(),amount:+val('e-amt')||0,hours:+val('e-hrs')||0,billable:$('#e-bill').checked,figmaUrl:val('e-fig').trim(),notes:val('e-notes')});
+    if($('#e-units')){const u=val('e-units');if(u==='')delete t.units;else t.units=+u}
+    if(t.figmaUrl&&!safeUrl(t.figmaUrl)){toast('Figma links must start with https://');return}if(!t.createdAt)t.createdAt=TODAY;closeOv();await put('tasks',stageFix(t,prev))},
+  edel:async el=>{if(!ed.armed){ed.armed=true;el.textContent='Tap again to delete';return}const id=ed.t.id;closeOv();await del('tasks',id);toast('Deliverable deleted')},
+  cnew:()=>openClient(null),cedit:(el,id)=>openClient(id),
+  csave:async()=>{const c=ed.c;['name','contact','email','phone','vat','address','notes'].forEach(k=>c[k]=val('c-'+k).trim());c.retainer=+val('c-retainer')||0;const fee=+val('sl-fee')||0;
+    if(fee>0){const n=k=>+val('sl-'+k)||0;c.sla={ref:val('sl-ref').trim(),start:val('sl-start'),fee,term:n('term')||12,units:n('units'),videos:n('videos'),hours:n('hours'),terms:n('terms')||30,unitRate:n('unitRate'),videoRate:n('videoRate')}}else delete c.sla;if(!c.name){toast('Add the client’s name');return}closeOv();await put('clients',c)},
+  cdel:async el=>{const n=S.tasks.filter(t=>t.clientId===ed.c.id).length;if(!ed.armed){ed.armed=true;el.textContent=n?`Delete (keeps ${n} deliverables)`:'Tap again to delete';return}const id=ed.c.id;closeOv();await del('clients',id)},
+  xadd:()=>{const d=val('xd').trim(),q=+val('xq')||1,r=+val('xr')||0;if(!d||!r){toast('Add a description and rate');return}S.draft.extra.push({d,q,r});render(true)},
+  xdel:el=>{S.draft.extra.splice(+el.dataset.i,1);render(true)},
+  icreate:createInvoice,idel:(el,id)=>{if(el.dataset.armed){deleteInvoice(id)}else{el.dataset.armed=1;el.textContent='Confirm'}},
+  ipdf:(el,id)=>{const i=S.invoices.find(x=>x.id===id);if(i)pdf(i)},
+  rapprove:async(el,id)=>{const t=S.tasks.find(x=>x.id===id);if(!t)return;const txt=val('fb-'+id).trim();await put('tasks',stageFix({...t,status:'approved',review:'approved',feedback:logFb(t,val('fbw-'+id)||'Client',txt||'Approved')},t.status));toast('Approved')},
+  rchanges:async(el,id)=>{const t=S.tasks.find(x=>x.id===id);if(!t)return;const txt=val('fb-'+id).trim();if(!txt){toast('Write what needs to change first');$('#fb-'+id).focus();return}await put('tasks',stageFix({...t,status:'doing',review:'changes',feedback:logFb(t,val('fbw-'+id)||'Client',txt)},t.status));toast('Moved back to In progress')},
+  rnote:async(el,id)=>{const t=S.tasks.find(x=>x.id===id),txt=val('fb-'+id).trim();if(!t||!txt)return;await put('tasks',{...t,feedback:logFb(t,val('fbw-'+id)||'Studio',txt)})},
+  udraft:(el,id)=>{S.up={clientId:id,text:genUpdate(id)};render(true);$('#ut')&&$('#ut').scrollIntoView({block:'center'})},
+  uregen:()=>{S.up.text=genUpdate(S.up.clientId);render(true)},
+  ucopy:async()=>{try{await navigator.clipboard.writeText(val('ut'));toast('Copied — paste into email or WhatsApp')}catch(e){$('#ut').select();toast('Select all and copy')}},
+  upolish:async()=>{const b=$('#upb'),ta=$('#ut');b.disabled=true;b.textContent='Polishing…';const orig=ta.value;
+    try{const r=await sample(`Rewrite this daily client status update from a South African design studio so it reads warm, clear and concise. Keep every fact, deliverable name, date and link exactly; add no new promises or dates; keep the bullet structure and sign-off; plain text only, no markdown. Return only the update.\n\n${orig}`,{modelTier:'quick',onText:({text})=>{ta.value=text}});S.up.text=r.text||orig;ta.value=S.up.text}
+    catch(e){ta.value=orig;toast(e&&e.code==='rate_limited'?'Busy — try again shortly':'Couldn’t polish right now')}b.disabled=false;b.textContent='Polish with Claude'},
+  ulog:async()=>{const text=val('ut').trim();if(!text)return;await put('updates',{id:uid('u'),clientId:S.up.clientId,date:TODAY,at:Date.now(),text});toast('Logged as sent today')},
+  impparse:()=>{S.imp=parseList(val('mt'));if(!S.imp.length)toast('Nothing to read yet');render(true)},
+  impai:impAI,impclear:()=>{S.imp=[];render(true)},
+  impadd:async()=>{const rows=S.imp.filter(r=>r.on&&r.title.trim());if(!S.impClient||!rows.length)return;S.imp=[];for(const r of rows)await put('tasks',{id:uid('t'),title:r.title.trim(),clientId:S.impClient,type:r.type,status:'upcoming',due:r.due,amount:+r.amount||0,billable:true,assignee:'',figmaUrl:'',notes:r.notes||'',createdAt:TODAY,source:'client list'});toast(rows.length+' items added to Upcoming');location.hash='board'},
+  signout:async()=>{if(sb)await sb.auth.signOut();location.reload()},
+  ssave:async()=>{const s={};document.querySelectorAll('[data-s]').forEach(i=>s[i.dataset.s]=i.type==='number'?+i.value:i.value.trim());S.set=s;render(true);if(db)try{await db.save('settings','company',s);toast('Studio details saved')}catch(e){toast(errMsg(e))}}
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el||el.disabled)return;const f=A[el.dataset.act];if(f){e.preventDefault();f(el,el.dataset.id,e)}});
+document.addEventListener('input',e=>{const el=e.target;if(el.dataset.in==='q'){S.f.q=el.value;render(true)}else if(el.dataset.in==='utext')S.up.text=el.value});
+document.addEventListener('change',async e=>{const el=e.target,k=el.dataset.ch;if(!k)return;
+  if(k==='fclient'){S.f.client=el.value;render(true)}else if(k==='ftype'){S.f.type=el.value;render(true)}else if(k==='fwho'){S.f.who=el.value;render(true)}
+  else if(k==='iclient'){S.draft={clientId:el.value,off:{},ret:true,extra:[]};render(true)}else if(k==='iret'){S.draft.ret=el.checked;render(true)}else if(k==='islaon'){S.draft.slaOn=el.checked;render(true)}else if(k==='iover'){S.draft.overOn=el.checked;render(true)}else if(k==='itask'){S.draft.off[el.dataset.id]=!el.checked;render(true)}
+  else if(k==='istatus'){const i=S.invoices.find(x=>x.id===el.dataset.id);if(i)await put('invoices',{...i,status:el.value})}
+  else if(k==='uclient'){S.up={clientId:el.value,text:el.value?genUpdate(el.value):''};render(true)}
+  else if(k==='impclient'){S.impClient=el.value;render(true)}
+  else if(k==='imp'){const r=S.imp[+el.dataset.i];if(r){r[el.dataset.k]=el.type==='checkbox'?el.checked:el.value;if(el.dataset.k==='on')render(true)}}
+  else if(k==='impfile'){const f=el.files[0];if(f){const t=await f.text();$('#mt').value=t.slice(0,20000);S.imp=parseList(t);render(true)}}
+  else if(k==='prev'){const f=el.files[0],t=S.tasks.find(x=>x.id===el.dataset.id);if(f&&t&&assets){toast('Uploading preview…');try{if(f.size>10*1024*1024)throw new Error('Image is over 10 MB');const path=t.id+'/'+Date.now()+'-'+f.name.replace(/[^\w.-]+/g,'_').slice(-60);const{error}=await sb.storage.from('previews').upload(path,f,{contentType:f.type||'image/png'});if(error)throw error;await put('tasks',{...t,previewId:path})}catch(err){toast('Upload failed: '+(err&&err.message||'error'))}}}
+});
+/* drag and drop */
+document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.card');if(c){e.dataTransfer.setData('text/plain',c.dataset.id);e.dataTransfer.effectAllowed='move'}});
+document.addEventListener('dragover',e=>{const col=e.target.closest&&e.target.closest('.colm');if(col){e.preventDefault();document.querySelectorAll('.colm.over').forEach(x=>x!==col&&x.classList.remove('over'));col.classList.add('over')}});
+document.addEventListener('dragleave',e=>{const col=e.target.closest&&e.target.closest('.colm');if(col&&!col.contains(e.relatedTarget))col.classList.remove('over')});
+document.addEventListener('drop',async e=>{const col=e.target.closest&&e.target.closest('.colm');if(!col)return;e.preventDefault();col.classList.remove('over');const id=e.dataTransfer.getData('text/plain'),t=S.tasks.find(x=>x.id===id);if(t&&t.status!==col.dataset.stage)await put('tasks',stageFix({...t,status:col.dataset.stage},t.status))});
+window.addEventListener('hashchange',()=>render(true));
+
+/* ---------- boot ---------- */
+render(true);
+const note=m=>{$('#note').textContent=m};
+function gate(){document.body.classList.add('locked');$('#gate').hidden=false;setTimeout(()=>$('#gemail').focus(),50)}
+$('#gform').addEventListener('submit',async e=>{e.preventDefault();const email=$('#gemail').value.trim().toLowerCase(),m=$('#gmsg'),b=$('#gbtn');m.className='';
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){m.className='err';m.textContent='Enter a valid email address.';return}
+  if(!sb){m.className='err';m.textContent='Sign-in isn’t available — check your connection and reload.';return}
+  b.disabled=true;b.textContent='Sending…';
+  const{error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
+  b.disabled=false;b.textContent='Email me a sign-in link';
+  if(error){m.className='err';m.textContent=/authori|database error/i.test(error.message)?'This email isn’t approved for the studio desk.':/rate|seconds/i.test(error.message)?'Too many attempts — wait a minute and try again.':'Couldn’t send the link: '+error.message}
+  else m.textContent='Check '+email+' for your sign-in link. You can close this tab.'});
+async function loadAll(){const by={tasks:[],clients:[],invoices:[],updates:[]};let set={},from=0;
+  for(;;){const{data,error}=await sb.from('docs').select('col,id,data').range(from,from+999);if(error){note('Couldn’t load studio data: '+error.message);return}
+    for(const r of data){if(r.col==='settings'){if(r.id==='company')set={...r.data}}else if(by[r.col])by[r.col].push({id:r.id,...r.data})}
+    if(data.length<1000)break;from+=1000}
+  Object.assign(S,by);S.set=set;note('');render()}
+function applyChange(p){const r=p.eventType==='DELETE'?p.old:p.new;if(!r||!r.col)return;
+  if(r.col==='settings'){if(r.id==='company')S.set=p.eventType==='DELETE'?{}:{...r.data};render();return}
+  if(!S[r.col])return;S[r.col]=S[r.col].filter(x=>x.id!==r.id);if(p.eventType!=='DELETE')S[r.col].push({id:r.id,...r.data});render()}
+let started=false;
+async function start(){if(started)return;started=true;document.body.classList.remove('locked');$('#gate').hidden=true;
+  const w=$('#who');w.hidden=false;w.textContent='Sign out';w.title='Signed in as '+session.user.email;
+  history.replaceState(null,'',location.pathname+(view()!=='board'?'#'+view():''));
+  const{data:ok,error}=await sb.rpc('is_allowed');
+  if(error||!ok){note('Signed in as '+session.user.email+', but this email isn’t approved for the studio desk.');return}
+  db=dbx;assets=true;downloads=true;note('Loading studio data…');render(true);
+  await loadAll();
+  sb.channel('docs-live').on('postgres_changes',{event:'*',schema:'public',table:'docs'},applyChange).subscribe();
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')loadAll()});
+}
+(async()=>{
+  if(!window.supabase){gate();note('');$('#gmsg').className='err';$('#gmsg').textContent='Couldn’t load sign-in. Check your connection and reload.';return}
+  sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'implicit'}});
+  sb.auth.onAuthStateChange((ev,s)=>{if(s&&!started){session=s;start()}});
+  const{data:{session:s}}=await sb.auth.getSession();
+  if(s){session=s;start()}else if(!/access_token|error_description/.test(location.hash))gate();
+  if(/error_description/.test(location.hash)){gate();$('#gmsg').className='err';$('#gmsg').textContent='That sign-in link has expired or was already used. Request a new one.';history.replaceState(null,'',location.pathname)}
+})();
+}
+</script>
+</body></html>
