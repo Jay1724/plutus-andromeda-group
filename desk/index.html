@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
 <title>PAG Studio Desk</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%22400%20300%20650%20650%22%3E%3Crect%20x%3D%22400%22%20y%3D%22300%22%20width%3D%22650%22%20height%3D%22650%22%20rx%3D%22120%22%20fill%3D%22%23000%22/%3E%3Cpath%20fill%3D%22%23fff%22%20fill-rule%3D%22evenodd%22%20d%3D%22M727%20327L890%20653H622L519%20860H994L1020%20912H433ZM727%20445L650%20600H804Z%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Schibsted+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -22,7 +23,7 @@ a{color:var(--acc)}
 .wrap{max-width:1400px;margin:0 auto}
 header.bar{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;padding:16px max(4vw,16px) 8px}
 .brand{display:flex;align-items:center;gap:10px;font:600 17px "Schibsted Grotesk",sans-serif}
-.brand small{display:block;font:500 13px "Instrument Sans",sans-serif;color:var(--mute)}
+.pa-mark{flex:none;color:var(--ink)}.brand small{display:block;font:500 13px "Instrument Sans",sans-serif;color:var(--mute)}
 .mon{display:flex;align-items:center;gap:6px}
 .mon b{font:600 20px "Schibsted Grotesk",sans-serif;min-width:150px;text-align:center;white-space:nowrap}
 nav.scroll{display:flex;gap:4px;padding:0 max(4vw,16px);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
@@ -115,11 +116,11 @@ pre,.scroll{overflow-x:auto}.scroll a{flex:none}code{overflow-wrap:anywhere}html
 @media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mute)}.stack td:empty{display:none}}
 </style><script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script></head><body class="locked">
 <header class="bar">
-  <div class="brand"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="var(--acc)"/><ellipse cx="17" cy="17" rx="13" ry="4.5" fill="none" stroke="var(--accink)" stroke-width="1.6" transform="rotate(-28 17 17)"/><circle cx="17" cy="17" r="3.2" fill="var(--accink)"/></svg><div>Studio desk<small>Plutus Andromeda Group</small></div></div>
+  <div class="brand"><svg class="pa-mark" width="30" height="30" viewBox="420 320 610 600" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M727 327L890 653H622L519 860H994L1020 912H433ZM727 445L650 600H804Z"/></svg><div>Studio desk<small>Plutus Andromeda</small></div></div>
   <div class="mon"><button class="icon" data-act="mprev" aria-label="Previous month">‹</button><b id="mlabel"></b><button class="icon" data-act="mnext" aria-label="Next month">›</button><button class="ghost" data-act="mnow">Today</button><button class="ghost" data-act="signout" id="who" hidden title="Sign out">Sign out</button></div>
 </header>
 <nav class="scroll" id="nav"></nav>
-<section id="gate"><form id="gform" novalidate><h1>Studio desk</h1><p>Sign in with your approved email. We’ll send you a one-time link.</p><label class="f">Email<input id="gemail" type="email" autocomplete="email" required></label><button class="pri" type="submit" id="gbtn">Email me a sign-in link</button><div id="gmsg" role="status"></div></form></section>
+<section id="gate"><form id="gform" novalidate><svg class="pa-mark" width="56" height="56" viewBox="420 320 610 600" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M727 327L890 653H622L519 860H994L1020 912H433ZM727 445L650 600H804Z"/></svg><h1>Studio desk</h1><p>Sign in with your approved email. We’ll send you a one-time link.</p><label class="f">Email<input id="gemail" type="email" autocomplete="email" required></label><button class="pri" type="submit" id="gbtn">Email me a sign-in link</button><div id="gmsg" role="status"></div></form></section>
 <div class="note" id="note"></div>
 <main class="band"><div class="wrap"><section class="figs" id="figs" aria-label="Month figures"></section><div id="view"></div></div></main>
 <div class="ov" id="ov"><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
@@ -317,14 +318,16 @@ async function createInvoice(){
   toast(inv.number+' created');
 }
 async function deleteInvoice(id){const inv=S.invoices.find(i=>i.id===id);if(!inv)return;await del('invoices',id);for(const tid of inv.taskIds||[]){const x=S.tasks.find(t=>t.id===tid);if(x&&x.invoiceId===id){const{invoiceId,...rest}=x;await put('tasks',rest)}}toast(inv.number+' deleted; deliverables can be invoiced again')}
+const PA_PATH="M727 327L890 653H622L519 860H994L1020 912H433ZM727 445L650 600H804Z";
+function markPng(){try{const c=document.createElement('canvas');c.width=c.height=240;const x=c.getContext('2d');x.scale(240/610,240/610);x.translate(-420,-320);x.fillStyle='#111';x.fill(new Path2D(PA_PATH),'evenodd');return c.toDataURL('image/png')}catch(e){return null}}
 async function pdf(inv){
   const J=window.jspdf&&window.jspdf.jsPDF;if(!J){toast('The PDF library didn’t load — try again.');return}
   const s=st(),c=client(inv.clientId)||{},doc=new J({unit:'mm',format:'a4'}),P=t=>String(t??'').replace(/ /g,' ');
   const money=n=>P(R(n));let y=22;
-  doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text(P(s.name),20,y);
+  const lg=markPng();if(lg)doc.addImage(lg,'PNG',20,y-6.5,9,9);const nx=lg?32:20;doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text(P(s.name),nx,y);
   doc.setFontSize(18);doc.text(s.vat?'TAX INVOICE':'INVOICE',190,y,{align:'right'});
   doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(90);
-  let ly=y+6;[`Reg. No. ${s.reg}`,s.vat?`VAT No. ${s.vat}`:'',...String(s.address||'').split('\n'),s.email,s.phone].filter(Boolean).forEach(l=>{doc.text(P(l),20,ly);ly+=4.4});
+  let ly=y+6;[`Reg. No. ${s.reg}`,s.vat?`VAT No. ${s.vat}`:'',...String(s.address||'').split('\n'),s.email,s.phone].filter(Boolean).forEach(l=>{doc.text(P(l),nx,ly);ly+=4.4});
   let ry=y+6;[['Invoice no.',inv.number],['Date',inv.issued],['Due',inv.due],['Period',mLabel(inv.month)],...(inv.ref?[['Agreement',inv.ref]]:[])].forEach(([a,b])=>{doc.text(a,150,ry);doc.setTextColor(20);doc.text(P(b),190,ry,{align:'right'});doc.setTextColor(90);ry+=4.4});
   y=Math.max(ly,ry)+8;doc.setTextColor(20);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('Bill to',20,y);doc.setFont('helvetica','normal');doc.setFontSize(9.5);y+=5;
   [c.name,c.contact,c.email,...String(c.address||'').split('\n'),c.vat?'VAT No. '+c.vat:''].filter(Boolean).forEach(l=>{doc.text(P(l),20,y);y+=4.6});
